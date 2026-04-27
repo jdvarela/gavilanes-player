@@ -15,8 +15,9 @@ COPY auth/app.py .
 
 # Copiar archivos estáticos protegidos
 RUN mkdir -p static
-COPY reproductor_gavilanes.html static/index.html
-COPY capitulos.json             static/capitulos.json
+COPY reproductor_gavilanes.html      static/index.html
+COPY capitulos_gavilanes.json        static/capitulos_gavilanes.json
+COPY capitulos_bella.json            static/capitulos_bella.json
 
 # Variables de entorno por defecto (CAMBIAR EN EASYPANEL)
 ENV ADMIN_USER=admin \
