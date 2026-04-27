@@ -1,18 +1,30 @@
-FROM nginx:alpine
+# ─────────────────────────────────────────
+# Reproductor Pasión de Gavilanes
+# Auth: Flask + bcrypt + JWT
+# ─────────────────────────────────────────
+FROM python:3.11-slim
 
-# Copiar archivos estáticos
-COPY reproductor_gavilanes.html /usr/share/nginx/html/index.html
-COPY capitulos.json /usr/share/nginx/html/capitulos.json
+WORKDIR /app
 
-# Configuración nginx optimizada para SPA estática
-RUN echo 'server { \
-  listen 80; \
-  root /usr/share/nginx/html; \
-  index index.html; \
-  gzip on; \
-  gzip_types text/html application/json text/css application/javascript; \
-  location / { try_files $uri $uri/ /index.html; } \
-  location ~* \.(html|json)$ { add_header Cache-Control "no-cache"; } \
-}' > /etc/nginx/conf.d/default.conf
+# Instalar dependencias Python
+COPY auth/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 80
+# Copiar backend
+COPY auth/app.py .
+
+# Copiar archivos estáticos protegidos
+RUN mkdir -p static
+COPY reproductor_gavilanes.html static/index.html
+COPY capitulos.json             static/capitulos.json
+
+# Variables de entorno por defecto (CAMBIAR EN EASYPANEL)
+ENV ADMIN_USER=admin \
+    ADMIN_PASS=Gavilanes2024! \
+    JWT_DAYS=7 \
+    PORT=5000
+
+EXPOSE 5000
+
+# Gunicorn: producción, 2 workers, timeout 120s
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:5000", "--workers", "2", "--timeout", "120", "--access-logfile", "-"]
