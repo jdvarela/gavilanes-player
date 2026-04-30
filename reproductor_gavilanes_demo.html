@@ -1,0 +1,2094 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🦅 Pasión de Gavilanes — Reproductor</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c28;
+    --border: #2a2a3d;
+    --accent: #c8a355;
+    --accent2: #8b1a1a;
+    --text: #e8e4d8;
+    --muted: #6b6b8a;
+    --player-bg: #000;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(180deg, #0a0208 0%, transparent 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    flex-shrink: 0;
+  }
+  .logo span { color: var(--accent2); }
+  .header-info {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-left: auto;
+  }
+
+  /* ── LAYOUT ── */
+  .app {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    min-height: calc(100vh - 70px);
+  }
+
+  /* ── SIDEBAR ── */
+  aside {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: sticky;
+    top: 70px;
+    height: calc(100vh - 70px);
+  }
+
+  .sidebar-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .sidebar-title {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .search-box {
+    position: relative;
+  }
+  .search-box input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px 8px 32px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.82rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-box input:focus { border-color: var(--accent); }
+  .search-box::before {
+    content: '🔍';
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.7rem;
+  }
+
+  .season-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .season-tab {
+    flex: 1;
+    padding: 6px;
+    text-align: center;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+  .season-tab.active {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  .ep-list {
+    overflow-y: auto;
+    flex: 1;
+    padding: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .ep-list::-webkit-scrollbar { width: 4px; }
+  .ep-list::-webkit-scrollbar-track { background: transparent; }
+  .ep-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .ep-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+    margin-bottom: 2px;
+  }
+  .ep-item:hover { background: var(--surface2); border-color: var(--border); }
+  .ep-item.active {
+    background: linear-gradient(135deg, rgba(200,163,85,0.15), rgba(139,26,26,0.1));
+    border-color: var(--accent);
+  }
+  .ep-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 36px;
+    text-align: center;
+    opacity: 0.8;
+  }
+  .ep-item.active .ep-num { opacity: 1; }
+  .ep-meta { flex: 1; }
+  .ep-title { font-size: 0.8rem; font-weight: 500; line-height: 1.3; }
+  .ep-servers {
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .ep-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+  .ep-item.active .ep-dot { background: var(--accent); }
+  .ep-item.no-data { opacity: 0.35; cursor: default; }
+  .ep-item.no-data:hover { background: transparent; border-color: transparent; }
+
+  /* ── MAIN PLAYER ── */
+  main {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .player-area {
+    background: var(--player-bg);
+    position: relative;
+    padding-top: 56.25%; /* 16:9 */
+    flex-shrink: 0;
+  }
+  .player-area iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  .player-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--muted);
+  }
+  .player-placeholder .eagle { font-size: 4rem; opacity: 0.3; }
+  .player-placeholder p { font-size: 0.9rem; }
+
+  .player-info {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .current-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    flex: 1;
+  }
+  .nav-btns {
+    display: flex;
+    gap: 8px;
+  }
+  .nav-btn {
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-family: inherit;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+  /* ── SERVER SELECTOR ── */
+  .server-bar {
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+  }
+  .server-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .server-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-family: inherit;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .server-btn:hover { border-color: var(--accent); }
+  .server-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+    font-weight: 600;
+  }
+  .no-servers-msg {
+    font-size: 0.82rem;
+    color: var(--accent2);
+    padding: 4px 0;
+  }
+
+  /* ── ABOUT ── */
+  .about {
+    padding: 24px 28px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .about-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  .about-desc { font-size: 0.88rem; line-height: 1.7; color: rgba(232,228,216,0.7); max-width: 720px; }
+  .badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  .badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    padding: 12px 28px;
+    display: flex;
+    gap: 24px;
+    border-top: 1px solid var(--border);
+    margin-top: auto;
+    flex-wrap: wrap;
+  }
+  .stat { text-align: center; }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--accent); }
+  .stat-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* ── EMPTY STATE ── */
+  .hidden { display: none !important; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .app { grid-template-columns: 1fr; }
+    aside {
+      position: relative;
+      top: 0;
+      height: 40vh;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+    .player-area { padding-top: 56.25%; }
+    .player-info { padding: 14px 16px; }
+    .server-bar { padding: 10px 16px; }
+    .about { padding: 16px; }
+    header { padding: 14px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🦅 Pasión de <span>Gavilanes</span></div>
+  <div class="header-info" id="statsHeader">Cargando...</div>
+</header>
+
+<div class="app">
+  <!-- ── SIDEBAR ── -->
+  <aside>
+    <div class="sidebar-header">
+      <div class="sidebar-title">📋 Capítulos</div>
+      <div class="search-box">
+        <input type="number" id="searchCap" placeholder="Ir al capítulo..." min="1">
+      </div>
+    </div>
+    <div class="season-tabs" id="seasonTabs"></div>
+    <div class="ep-list" id="epList"></div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main>
+    <!-- Player -->
+    <div class="player-area" id="playerArea">
+      <div class="player-placeholder" id="playerPlaceholder">
+        <div class="eagle">🦅</div>
+        <p>Selecciona un capítulo para comenzar</p>
+      </div>
+    </div>
+
+    <!-- Info del capítulo -->
+    <div class="player-info">
+      <div class="current-title" id="currentTitle">Selecciona un capítulo</div>
+      <div class="nav-btns">
+        <button class="nav-btn" id="prevBtn" onclick="navigate(-1)" disabled>← Anterior</button>
+        <button class="nav-btn" id="nextBtn" onclick="navigate(1)" disabled>Siguiente →</button>
+      </div>
+    </div>
+
+    <!-- Selector de servidores -->
+    <div class="server-bar" id="serverBar">
+      <span class="server-label">Servidor:</span>
+      <span class="no-servers-msg" id="noServersMsg" style="display:none">Sin servidores disponibles para este capítulo</span>
+    </div>
+
+    <!-- Descripción -->
+    <div class="about">
+      <div class="about-title">Sobre la serie</div>
+      <div class="about-desc">
+        La historia gira alrededor de los hermanos Reyes: Juan, Óscar y Franco, tres llaneros que llegan a trabajar como peones en la hacienda La Bonita. Allí se enamoran de las tres hijas de Doña Gabriela de Elizondo: Norma, Sara y Jimena. Una historia de amor apasionada, traición, venganza y redención.
+      </div>
+      <div class="badges">
+        <span class="badge">🇨🇴 Colombia</span>
+        <span class="badge">❤️ Drama / Romance</span>
+        <span class="badge">📅 2003</span>
+        <span class="badge">⭐ 7.8/10</span>
+        <span class="badge">🌐 Español</span>
+      </div>
+    </div>
+
+    <div class="stats-bar" id="statsBar">
+      <div class="stat"><div class="stat-num" id="statLoaded">0</div><div class="stat-label">Capítulos cargados</div></div>
+      <div class="stat"><div class="stat-num" id="statOk">0</div><div class="stat-label">Con video</div></div>
+      <div class="stat"><div class="stat-num" id="statSeasons">0</div><div class="stat-label">Temporadas</div></div>
+    </div>
+  </main>
+</div>
+
+<script>
+// ── DATA ──
+const DATA = [
+  {
+    "capitulo": 1,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242349"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 2,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242350"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 3,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242351"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 4,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242352"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 5,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242353"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 6,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242354"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 7,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242355"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 8,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242356"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 9,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242357"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 10,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242358"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 11,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242359"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 12,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242360"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 13,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242361"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 14,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242362"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 15,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242363"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 16,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242364"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 17,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242365"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 18,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242366"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 19,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242367"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 20,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242368"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 21,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242369"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 22,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242370"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 23,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242371"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 24,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242372"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 25,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242373"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 26,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242374"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 27,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242375"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 28,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242376"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 29,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242377"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 30,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242378"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 31,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242379"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 32,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242380"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 33,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242381"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 34,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242382"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 35,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242383"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 36,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242384"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 37,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242385"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 38,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242386"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 39,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242387"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 40,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242388"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 41,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242389"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 42,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242390"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 43,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242391"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 44,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242392"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 45,
+    "temporada": 1,
+    "servidores": {},
+    "ok": false
+  },
+  {
+    "capitulo": 46,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242394"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 47,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242395"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 48,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242396"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 49,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242397"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 50,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242398"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 51,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242399"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 52,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242400"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 53,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242401"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 54,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242402"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 55,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242403"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 56,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242404"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 57,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242405"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 58,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242406"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 59,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242407"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 60,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242408"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 61,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242409"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 62,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242410"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 63,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242411"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 64,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242412"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 65,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242413"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 66,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242414"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 67,
+    "temporada": 1,
+    "servidores": {},
+    "ok": false
+  },
+  {
+    "capitulo": 68,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242416"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 69,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242417"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 70,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242418"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 71,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242419"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 72,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242420"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 73,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242421"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 74,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242422"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 75,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242423"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 76,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242424"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 77,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242425"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 78,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242426"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 79,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242427"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 80,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242428"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 81,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242429"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 82,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242430"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 83,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242431"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 84,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242432"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 85,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242433"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 86,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242434"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 87,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242435"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 88,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242436"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 89,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242437"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 90,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242438"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 91,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242439"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 92,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242440"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 93,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242441"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 94,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242442"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 95,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242443"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 96,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242444"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 97,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242445"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 98,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242446"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 99,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242447"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 100,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242448"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 101,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242449"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 102,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242450"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 103,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242451"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 104,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242452"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 105,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242453"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 106,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242454"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 107,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242455"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 108,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242456"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 109,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242457"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 110,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242458"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 111,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242459"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 112,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242460"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 113,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242461"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 114,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242462"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 115,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242463"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 116,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242464"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 117,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242465"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 118,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242466"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 119,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242467"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 120,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242468"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 121,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242469"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 122,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242470"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 123,
+    "temporada": 1,
+    "servidores": {},
+    "ok": false
+  },
+  {
+    "capitulo": 124,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242472"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 125,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242473"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 126,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242474"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 127,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242475"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 128,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242476"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 129,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242477"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 130,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242478"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 131,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242479"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 132,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242480"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 133,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242481"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 134,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242482"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 135,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242483"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 136,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242484"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 137,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242485"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 138,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242486"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 139,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242487"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 140,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242488"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 141,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242489"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 142,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242490"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 143,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242491"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 144,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242492"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 145,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242493"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 146,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242494"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 147,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242495"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 148,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242496"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 149,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242497"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 150,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242498"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 151,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242499"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 152,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242500"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 153,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242501"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 154,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242502"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 155,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242503"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 156,
+    "temporada": 1,
+    "servidores": {},
+    "ok": false
+  },
+  {
+    "capitulo": 157,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242505"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 158,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242506"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 159,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242507"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 160,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242508"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 161,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242509"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 162,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242510"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 163,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242511"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 164,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242512"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 165,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242513"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 166,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242514"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 167,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242515"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 168,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242516"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 169,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242517"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 170,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242518"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 171,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242519"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 172,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242520"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 173,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242521"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 174,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242522"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 175,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242523"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 176,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242524"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 177,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242525"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 178,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242526"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 179,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242527"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 180,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242528"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 181,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242529"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 182,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242530"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 183,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242531"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 184,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242532"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 185,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242533"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 186,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242534"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 187,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242535"
+    },
+    "ok": true
+  },
+  {
+    "capitulo": 188,
+    "temporada": 1,
+    "servidores": {
+      "vk": "https://vk.com/video_ext.php?oid=848084895&id=456242536"
+    },
+    "ok": true
+  }
+];
+
+// ── STATE ──
+let currentEp = null;
+let currentServer = null;
+let activeSeason = null;
+const seasons = [...new Set(DATA.map(e => e.temporada))].sort();
+
+// ── INIT ──
+function init() {
+  buildSeasonTabs();
+  activeSeason = seasons[0];
+  updateSeasonTabs();
+  renderList();
+  updateStats();
+}
+
+function buildSeasonTabs() {
+  const tabs = document.getElementById('seasonTabs');
+  tabs.innerHTML = seasons.map(s =>
+    `<div class="season-tab" onclick="switchSeason(${s})" data-season="${s}">T${s}</div>`
+  ).join('');
+  if (seasons.length <= 1) tabs.style.display = 'none';
+}
+
+function switchSeason(s) {
+  activeSeason = s;
+  updateSeasonTabs();
+  renderList();
+}
+
+function updateSeasonTabs() {
+  document.querySelectorAll('.season-tab').forEach(t => {
+    t.classList.toggle('active', parseInt(t.dataset.season) === activeSeason);
+  });
+}
+
+function renderList(filter = '') {
+  const list = document.getElementById('epList');
+  const episodes = DATA.filter(e => e.temporada === activeSeason);
+  
+  const filtered = filter
+    ? episodes.filter(e => e.capitulo.toString().includes(filter))
+    : episodes;
+
+  list.innerHTML = filtered.map(ep => {
+    const hasData = ep.servidores && Object.keys(ep.servidores).length > 0;
+    const servers = hasData ? Object.keys(ep.servidores).join(', ') : 'sin video';
+    const isActive = currentEp && currentEp.capitulo === ep.capitulo && currentEp.temporada === ep.temporada;
+    return `<div class="ep-item ${!hasData ? 'no-data' : ''} ${isActive ? 'active' : ''}" 
+                 onclick="${hasData ? `loadEp(${ep.capitulo}, ${ep.temporada})` : ''}" 
+                 data-cap="${ep.capitulo}">
+      <div class="ep-num">${ep.capitulo}</div>
+      <div class="ep-meta">
+        <div class="ep-title">Capítulo ${ep.capitulo}</div>
+        <div class="ep-servers">${servers}</div>
+      </div>
+      <div class="ep-dot"></div>
+    </div>`;
+  }).join('');
+}
+
+function loadEp(cap, season) {
+  const ep = DATA.find(e => e.capitulo === cap && e.temporada === season);
+  if (!ep || !ep.servidores) return;
+  
+  currentEp = ep;
+  
+  // Actualizar lista
+  renderList(document.getElementById('searchCap').value || '');
+  
+  // Scroll al item activo
+  const active = document.querySelector('.ep-item.active');
+  if (active) active.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+  // Título
+  document.getElementById('currentTitle').textContent = `T${ep.temporada} · Capítulo ${ep.capitulo}`;
+
+  // Servidores
+  const serverBar = document.getElementById('serverBar');
+  const servers = ep.servidores;
+  const serverKeys = Object.keys(servers);
+  
+  // Limpiar botones anteriores
+  serverBar.querySelectorAll('.server-btn').forEach(b => b.remove());
+  document.getElementById('noServersMsg').style.display = serverKeys.length ? 'none' : 'block';
+
+  serverKeys.forEach((key, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'server-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = key.toUpperCase();
+    btn.onclick = () => {
+      serverBar.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      setIframe(servers[key]);
+    };
+    serverBar.appendChild(btn);
+  });
+
+  // Cargar primer servidor
+  if (serverKeys.length > 0) {
+    currentServer = serverKeys[0];
+    setIframe(servers[currentServer]);
+  }
+
+  // Nav buttons
+  const allEps = DATA.filter(e => e.temporada === activeSeason && e.servidores && Object.keys(e.servidores).length > 0);
+  const idx = allEps.findIndex(e => e.capitulo === cap);
+  document.getElementById('prevBtn').disabled = idx <= 0;
+  document.getElementById('nextBtn').disabled = idx >= allEps.length - 1;
+}
+
+function setIframe(src) {
+  const area = document.getElementById('playerArea');
+  const placeholder = document.getElementById('playerPlaceholder');
+  placeholder && placeholder.remove();
+  
+  // Remover iframe anterior
+  area.querySelectorAll('iframe').forEach(f => f.remove());
+  
+  const iframe = document.createElement('iframe');
+  iframe.src = src;
+  iframe.scrolling = 'no';
+  iframe.frameBorder = '0';
+  iframe.allowFullscreen = true;
+  iframe.setAttribute('allowfullscreen', 'true');
+  iframe.setAttribute('webkitallowfullscreen', 'true');
+  iframe.setAttribute('mozallowfullscreen', 'true');
+  area.appendChild(iframe);
+}
+
+function navigate(dir) {
+  if (!currentEp) return;
+  const validEps = DATA.filter(e => e.temporada === activeSeason && e.servidores && Object.keys(e.servidores).length > 0);
+  const idx = validEps.findIndex(e => e.capitulo === currentEp.capitulo);
+  const next = validEps[idx + dir];
+  if (next) loadEp(next.capitulo, next.temporada);
+}
+
+function updateStats() {
+  const total = DATA.length;
+  const withVideo = DATA.filter(e => e.servidores && Object.keys(e.servidores).length > 0).length;
+  document.getElementById('statLoaded').textContent = total;
+  document.getElementById('statOk').textContent = withVideo;
+  document.getElementById('statSeasons').textContent = seasons.length;
+  document.getElementById('statsHeader').textContent = `${withVideo}/${total} capítulos con video`;
+}
+
+// ── SEARCH ──
+document.getElementById('searchCap').addEventListener('input', e => {
+  renderList(e.target.value);
+});
+document.getElementById('searchCap').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const val = parseInt(e.target.value);
+    if (val) {
+      const ep = DATA.find(d => d.capitulo === val && d.temporada === activeSeason);
+      if (ep && ep.servidores && Object.keys(ep.servidores).length) loadEp(val, activeSeason);
+    }
+  }
+});
+
+init();
+</script>
+</body>
+</html>
