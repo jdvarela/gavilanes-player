@@ -108,40 +108,58 @@
             .series-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
         }
 
-        /* ═══ LIVE TV ═══ */
-        .live-badge { display:inline-flex; align-items:center; gap:5px; background:#e50914;
-            color:#fff; font-size:0.6rem; font-weight:800; letter-spacing:0.12em;
-            padding:3px 8px; border-radius:4px; text-transform:uppercase; flex-shrink:0; }
-        .live-dot { width:6px; height:6px; border-radius:50%; background:#fff;
-            animation:livepulse 1.2s ease-in-out infinite; flex-shrink:0; }
-        @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-        @keyframes livepulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(.6)} }
-        
-        .tv-cats { display:flex; gap:8px; margin-bottom:20px; overflow-x:auto; scrollbar-width:none; padding-bottom:4px; }
-        .tv-cats::-webkit-scrollbar { display:none; }
-        .tv-cat-btn { padding:6px 16px; border-radius:20px; background:var(--surface2); border:1px solid var(--border);
-            color:var(--muted); font-size:0.8rem; font-weight:500; cursor:pointer; white-space:nowrap;
-            transition:all 0.2s; }
-        .tv-cat-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700; }
-        
-        .channels-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:14px; }
-        .channel-card { background:var(--surface2); border-radius:12px; border:1px solid var(--border);
-            padding:20px 15px; text-align:center; cursor:pointer;
-            transition:all 0.25s; position:relative; overflow:hidden; }
-        .channel-card::before { content:''; position:absolute; inset:0; opacity:0;
-            background:linear-gradient(135deg, rgba(229,9,20,0.15), transparent);
-            transition:opacity 0.25s; }
-        .channel-card:hover { transform:translateY(-5px); border-color:rgba(229,9,20,0.4);
-            box-shadow:0 12px 30px rgba(0,0,0,0.4); }
-        .channel-card:hover::before { opacity:1; }
-        .ch-emoji { font-size:2.8rem; margin-bottom:12px; display:block; }
-        .ch-name { font-size:0.88rem; font-weight:600; margin-bottom:6px; }
-        .ch-cat { font-size:0.68rem; color:var(--muted); }
-        .ch-live { position:absolute; top:10px; right:10px; }
-        
-        @media(max-width:840px){
-            .channels-grid { grid-template-columns:repeat(auto-fill, minmax(130px,1fr)); gap:10px; }
             .ch-emoji { font-size:2.2rem; }
+        }
+
+
+        /* ═══ IPTV TV EN VIVO ═══ */
+        .live-badge{display:inline-flex;align-items:center;gap:5px;background:#e50914;color:#fff;font-size:.6rem;font-weight:800;letter-spacing:.12em;padding:3px 8px;border-radius:4px;text-transform:uppercase;}
+        .live-dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:livepulse 1.2s ease-in-out infinite;flex-shrink:0;}
+        @keyframes livepulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.6)}}
+        @keyframes spin2{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+        #iptv-view{padding:0;max-width:100%;background:var(--bg);min-height:calc(100vh - 60px);}
+        .iptv-header{padding:18px 20px 0;display:flex;align-items:center;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:50;}
+        .iptv-logo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--accent);letter-spacing:.05em;display:flex;align-items:center;gap:10px;cursor:pointer;}
+        .iptv-search{flex:1;min-width:180px;position:relative;}
+        .iptv-search input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:9px 12px 9px 36px;color:var(--text);font-size:.84rem;outline:none;transition:all .2s;}
+        .iptv-search input:focus{border-color:var(--accent);background:rgba(229,9,20,.04);}
+        .iptv-search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--muted);}
+        .iptv-lists{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:10px 20px;border-bottom:1px solid var(--border);}
+        .iptv-lists::-webkit-scrollbar{display:none;}
+        .iptv-list-btn{padding:6px 14px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--muted);font-size:.76rem;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0;}
+        .iptv-list-btn:hover{background:rgba(255,255,255,.07);color:var(--text);}
+        .iptv-list-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
+        .iptv-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:60px 20px;color:var(--muted);}
+        .iptv-spinner{font-size:2.5rem;animation:spin2 1s linear infinite;}
+        .iptv-groups{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding:8px 20px;background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);}
+        .iptv-groups::-webkit-scrollbar{display:none;}
+        .iptv-grp-btn{padding:5px 12px;border-radius:20px;background:transparent;border:1px solid transparent;color:var(--muted);font-size:.72rem;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;font-weight:500;}
+        .iptv-grp-btn:hover{background:rgba(255,255,255,.04);color:var(--text);}
+        .iptv-grp-btn.active{background:rgba(255,255,255,.07);border-color:var(--border);color:var(--text);font-weight:700;}
+        .iptv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;padding:16px 20px;align-content:start;}
+        .iptv-ch{background:var(--surface2);border-radius:10px;border:1px solid var(--border);padding:12px 8px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+        .iptv-ch:hover{border-color:rgba(229,9,20,.5);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.3);}
+        .iptv-ch-logo{width:48px;height:48px;border-radius:8px;object-fit:contain;margin:0 auto 8px;display:block;background:rgba(255,255,255,.04);}
+        .iptv-ch-logo.no-logo{background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;font-size:1.4rem;}
+        .iptv-ch-name{font-size:.72rem;font-weight:600;line-height:1.3;color:var(--text);}
+        .iptv-ch-grp{font-size:.6rem;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .iptv-count{font-size:.7rem;color:var(--muted);padding:4px 20px 12px;}
+
+        /* IPTV PLAYER */
+        #iptv-player-view{display:flex;flex-direction:column;height:100vh;height:100dvh;position:fixed;inset:0;background:#000;z-index:1000;}
+        .iptv-player-bar{position:absolute;top:0;left:0;right:0;z-index:10;padding:12px 16px;background:linear-gradient(to bottom,rgba(0,0,0,.85),transparent);display:flex;align-items:center;gap:12px;}
+        #iptv-video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;}
+        .iptv-error-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--muted);background:#000;}
+        .iptv-player-bottom{position:absolute;bottom:0;left:0;right:0;padding:20px 16px 14px;background:linear-gradient(transparent,rgba(0,0,0,.9));}
+        .iptv-player-chname{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:3px;}
+        .iptv-player-grp{font-size:.72rem;color:rgba(255,255,255,.5);}
+        .iptv-back-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:50%;width:38px;height:38px;color:white;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
+        .iptv-back-btn:hover{background:rgba(255,255,255,.2);}
+
+        @media(max-width:840px){
+            .iptv-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;padding:12px;}
+            .iptv-header{padding:12px 14px 0;}
         }
 
     </style>
@@ -150,9 +168,8 @@
 
     <header id="main-header">
         <div class="logo" onclick="showCatalog()">MIS NOVELAS</div>
-        <button onclick="showTV()" id="nav-tv" style="background:rgba(229,9,20,0.12);border:1px solid rgba(229,9,20,0.3);color:#fff;border-radius:8px;padding:7px 14px;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:0.03em;display:flex;align-items:center;gap:6px;" onmouseover="this.style.background='rgba(229,9,20,0.25)'" onmouseout="this.style.background='rgba(229,9,20,0.12)'">
-            <span style="width:7px;height:7px;border-radius:50%;background:#e50914;display:inline-block;animation:livepulse 1.2s ease-in-out infinite;box-shadow:0 0 8px #e50914;"></span>
-            TV EN VIVO
+        <button onclick="showIPTV()" style="background:rgba(229,9,20,.12);border:1px solid rgba(229,9,20,.3);color:#fff;border-radius:8px;padding:7px 14px;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:7px;" onmouseover="this.style.background='rgba(229,9,20,.25)'" onmouseout="this.style.background='rgba(229,9,20,.12)'">
+            <span style="width:7px;height:7px;border-radius:50%;background:#e50914;display:inline-block;animation:livepulse 1.2s ease-in-out infinite;box-shadow:0 0 8px #e50914;"></span> TV EN VIVO
         </button>
         <div class="header-pill"><span class="dot" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--success); margin-right:5px; box-shadow:0 0 8px var(--success);"></span> ONLINE</div>
     </header>
@@ -424,184 +441,210 @@
         }
 
 
-        // ═══════════════════════════════
-        // TV EN VIVO
-        // ═══════════════════════════════
-        const CHANNELS = [{"id": "tudn", "name": "TUDN", "emoji": "🏆", "cat": "Fútbol", "stream": "tudn_usa", "color": "#0b4ea2"}, {"id": "espnp", "name": "ESPN Premium", "emoji": "🎽", "cat": "Deportes", "stream": "espnpremium", "color": "#cc0000"}, {"id": "espn1", "name": "ESPN", "emoji": "⚡", "cat": "Deportes", "stream": "espn", "color": "#cc0000"}, {"id": "foxsp", "name": "Fox Sports", "emoji": "🦊", "cat": "Deportes", "stream": "foxsports", "color": "#0099d6"}, {"id": "tyc", "name": "TyC Sports", "emoji": "🇦🇷", "cat": "Fútbol", "stream": "tycsports", "color": "#e30613"}, {"id": "tnt", "name": "TNT Sports", "emoji": "💣", "cat": "Deportes", "stream": "tntsports", "color": "#0f3460"}, {"id": "dsports", "name": "DirecTV Sports", "emoji": "📡", "cat": "Deportes", "stream": "dsports", "color": "#00a2e8"}, {"id": "winplus", "name": "Win Sports+", "emoji": "🏅", "cat": "Fútbol", "stream": "winplus", "color": "#e4002b"}];
-        let currentCat = 'all';
+            document.getElementById('tv-player-view').classList.add('hidden');
+            document.getElementById('tv-view').classList.remove('hidden');
+            document.getElementById('main-header').classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
 
-        function showTV() {
+
+        // ═══════════════════════════════════════════════
+        // IPTV ENGINE
+        // ═══════════════════════════════════════════════
+        const IPTV_LISTS = [
+            { id:'spa',  name:'🌎 Español (1700+)', url:'https://iptv-org.github.io/iptv/languages/spa.m3u' },
+            { id:'es',   name:'🇪🇸 España (288)',    url:'https://iptv-org.github.io/iptv/countries/es.m3u'  },
+            { id:'mx',   name:'🇲🇽 México',          url:'https://iptv-org.github.io/iptv/countries/mx.m3u'  },
+            { id:'cr',   name:'🇨🇷 Costa Rica',      url:'https://iptv-org.github.io/iptv/countries/cr.m3u'  },
+            { id:'us',   name:'🇺🇸 USA (English)',   url:'https://iptv-org.github.io/iptv/countries/us.m3u'  },
+            { id:'ar',   name:'🇦🇷 Argentina',       url:'https://iptv-org.github.io/iptv/countries/ar.m3u'  },
+            { id:'co',   name:'🇨🇴 Colombia',        url:'https://iptv-org.github.io/iptv/countries/co.m3u'  },
+        ];
+
+        let iptvChannels = [];
+        let iptvCurrentList = 'spa';
+        let iptvCurrentGroup = 'all';
+        let iptvHls = null;
+        let iptvLoaded = {};
+
+        function showIPTV() {
             document.getElementById('catalog-view').classList.add('hidden');
             document.getElementById('details-view').classList.add('hidden');
             document.getElementById('player-view').classList.add('hidden');
-            document.getElementById('tv-view').classList.remove('hidden');
-            document.getElementById('tv-player-view').classList.add('hidden');
+            document.getElementById('iptv-view').classList.remove('hidden');
             document.getElementById('main-header').classList.remove('hidden');
-            renderTVCats();
-            renderChannels();
+            renderIPTVLists();
+            if (!iptvLoaded[iptvCurrentList]) loadIPTVList(iptvCurrentList);
             window.scrollTo(0,0);
         }
 
-        function renderTVCats() {
-            const cats = ['all', ...new Set(CHANNELS.map(c=>c.cat))];
-            const labels = {'all':'Todos'};
-            const el = document.getElementById('tv-cats');
-            el.innerHTML = cats.map(c =>
-                `<button class="tv-cat-btn ${c===currentCat?'active':''}" onclick="filterCat('${c}')">${labels[c]||c}</button>`
+        function renderIPTVLists() {
+            document.getElementById('iptv-lists').innerHTML = IPTV_LISTS.map(l =>
+                `<button class="iptv-list-btn ${l.id===iptvCurrentList?'active':''}" onclick="switchIPTVList('${l.id}')">${l.name}</button>`
             ).join('');
         }
 
-        function filterCat(cat) {
-            currentCat = cat;
-            renderTVCats();
-            renderChannels();
-        }
-
-        function renderChannels() {
-            const filtered = currentCat==='all' ? CHANNELS : CHANNELS.filter(c=>c.cat===currentCat);
-            document.getElementById('channels-grid').innerHTML = filtered.map(ch => `
-                <div class="channel-card" onclick="openChannel('${ch.id}')">
-                    <span class="ch-live"><span class="live-badge"><span class="live-dot"></span>EN VIVO</span></span>
-                    <span class="ch-emoji">${ch.emoji}</span>
-                    <div class="ch-name">${ch.name}</div>
-                    <div class="ch-cat">${ch.cat}</div>
-                </div>
-            `).join('');
-        }
-
-        // HLS.js loaded dynamically
-        let hlsPlayer = null;
-        let currentTVChannel = null;
-        // TV API: try Flask proxy first (when served from server), then CORS proxy fallback
-        const FLASK_API = window.location.protocol !== 'file:' ? '/api/tv?channel=' : null;
-        const CORS_PROXY = 'https://corsproxy.io/?';
-
-        async function openChannel(chId) {
-            const ch = CHANNELS.find(c=>c.id===chId);
-            if(!ch) return;
-            currentTVChannel = ch;
-
-            document.getElementById('tv-view').classList.add('hidden');
-            document.getElementById('tv-player-view').classList.remove('hidden');
-            document.getElementById('main-header').classList.add('hidden');
-            document.getElementById('tv-ch-name').textContent = ch.emoji + ' ' + ch.name;
-
-            // Reset state
-            document.getElementById('tv-loading').style.display = 'flex';
-            document.getElementById('tv-fallback').classList.add('hidden');
-            document.getElementById('tv-status').textContent = 'Conectando al canal...';
-
-            // Render channel switcher
-            document.getElementById('tv-ch-list').innerHTML = CHANNELS.map(c =>
-                `<button onclick="openChannel('${c.id}')" style="padding:7px 14px;border-radius:20px;background:${c.id===chId?'var(--accent)':'rgba(255,255,255,0.1)'};border:1px solid ${c.id===chId?'var(--accent)':'rgba(255,255,255,0.15)'};color:white;font-size:0.78rem;font-weight:${c.id===chId?'700':'400'};cursor:pointer;white-space:nowrap;flex-shrink:0;">${c.emoji} ${c.name}</button>`
-            ).join('');
-
-            window.scrollTo(0,0);
-
-            // Load HLS.js if not loaded
-            if (!window.Hls) {
-                await loadScript('https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js');
-            }
-
-            // Fetch m3u8 URL via CORS proxy
-            const canalUrl = `https://latamvidz1.com/canal.php?stream=${ch.stream}`;
-            try {
-                document.getElementById('tv-status').textContent = 'Obteniendo stream...';
-                let m3u8 = null;
-
-                if (FLASK_API) {
-                    // Use our Flask proxy (server has same IP as browser)
-                    const r = await fetch(FLASK_API + ch.stream, { signal: AbortSignal.timeout(10000) });
-                    const data = await r.json();
-                    if (data.m3u8) m3u8 = data.m3u8;
-                }
-
-                if (!m3u8) {
-                    // Fallback: CORS proxy
-                    const r2 = await fetch(CORS_PROXY + encodeURIComponent(canalUrl), { signal: AbortSignal.timeout(12000) });
-                    const pageHtml = await r2.text();
-                    const match = pageHtml.match(/var playbackURL\s*=\s*"([^"]+)"/);
-                    if (match) m3u8 = match[1];
-                }
-
-                if (m3u8) {
-                    playHLS(m3u8);
-                } else {
-                    throw new Error('No stream URL found');
-                }
-            } catch(e) {
-                console.warn('All proxies failed, iframe fallback:', e);
-                document.getElementById('tv-status').textContent = 'Cargando alternativo...';
-                document.getElementById('tv-fallback').classList.remove('hidden');
-                useFallbackIframe();
-            }
-        }
-
-        function playHLS(m3u8url) {
-            const video = document.getElementById('tv-video');
-            if(hlsPlayer) { hlsPlayer.destroy(); hlsPlayer = null; }
-
-            if(Hls.isSupported()) {
-                hlsPlayer = new Hls({ lowLatencyMode: true });
-                hlsPlayer.loadSource(m3u8url);
-                hlsPlayer.attachMedia(video);
-                hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => {
-                    document.getElementById('tv-loading').style.display = 'none';
-                    video.play().catch(()=>{});
-                });
-                hlsPlayer.on(Hls.Events.ERROR, (e, data) => {
-                    if(data.fatal) {
-                        console.warn('HLS error, fallback iframe');
-                        document.getElementById('tv-fallback').classList.remove('hidden');
-                    }
-                });
-            } else if(video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = m3u8url;
-                video.addEventListener('loadedmetadata', () => {
-                    document.getElementById('tv-loading').style.display = 'none';
-                    video.play().catch(()=>{});
-                });
+        async function switchIPTVList(id) {
+            iptvCurrentList = id;
+            iptvCurrentGroup = 'all';
+            document.getElementById('iptv-search-input').value = '';
+            renderIPTVLists();
+            if (!iptvLoaded[id]) {
+                await loadIPTVList(id);
             } else {
-                useFallbackIframe();
+                iptvChannels = iptvLoaded[id];
+                renderIPTVGroups();
+                renderIPTVGrid();
             }
         }
 
-        function useFallbackIframe() {
-            if(!currentTVChannel) return;
-            document.getElementById('tv-loading').style.display = 'none';
-            const video = document.getElementById('tv-video');
-            video.style.display = 'none';
-            // Create iframe overlay
-            const existing = document.getElementById('tv-iframe-fallback');
-            if(existing) existing.remove();
-            const iframe = document.createElement('iframe');
-            iframe.id = 'tv-iframe-fallback';
-            iframe.src = `https://latamvidz1.com/canal.php?stream=${currentTVChannel.stream}`;
-            iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;';
-            iframe.allowFullscreen = true;
-            iframe.allow = 'autoplay; fullscreen';
-            document.getElementById('tv-video-container').appendChild(iframe);
+        async function loadIPTVList(id) {
+            const list = IPTV_LISTS.find(l=>l.id===id);
+            document.getElementById('iptv-content').innerHTML = `<div class="iptv-loading"><div class="iptv-spinner">📡</div><div>Cargando ${list.name}...</div></div>`;
+            try {
+                const resp = await fetch(list.url);
+                const text = await resp.text();
+                const channels = parseM3U(text);
+                iptvLoaded[id] = channels;
+                iptvChannels = channels;
+                renderIPTVGroups();
+                renderIPTVGrid();
+            } catch(e) {
+                document.getElementById('iptv-content').innerHTML = `<div class="iptv-loading"><span style="font-size:2rem">⚠️</span><div>Error cargando lista</div><button onclick="loadIPTVList('${id}')" style="margin-top:10px;background:var(--accent);border:none;color:white;padding:8px 16px;border-radius:8px;cursor:pointer;">Reintentar</button></div>`;
+            }
         }
 
-        function loadScript(src) {
-            return new Promise((resolve, reject) => {
-                if(document.querySelector(`script[src="${src}"]`)) return resolve();
-                const s = document.createElement('script');
-                s.src = src; s.onload = resolve; s.onerror = reject;
-                document.head.appendChild(s);
+        function parseM3U(text) {
+            const lines = text.split('\n');
+            const channels = [];
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (line.startsWith('#EXTINF')) {
+                    const url = (lines[i+1]||'').trim();
+                    if (!url || url.startsWith('#')) continue;
+                    const name = (line.match(/,(.+)$/) || [])[1]?.trim() || 'Canal';
+                    const logo = (line.match(/tvg-logo="([^"]+)"/) || [])[1] || '';
+                    const group = (line.match(/group-title="([^"]+)"/) || [])[1] || 'General';
+                    channels.push({ name, logo, group, url });
+                }
+            }
+            return channels;
+        }
+
+        function renderIPTVGroups() {
+            const groups = ['all', ...new Set(iptvChannels.map(c=>c.group))].slice(0, 30);
+            document.getElementById('iptv-groups').innerHTML = groups.map(g =>
+                `<button class="iptv-grp-btn ${g===iptvCurrentGroup?'active':''}" onclick="setIPTVGroup('${g.replace(/'/g,"\\'")}'">${g==='all'?'Todos':g}</button>`
+            ).join('');
+        }
+
+        function setIPTVGroup(g) {
+            iptvCurrentGroup = g;
+            document.getElementById('iptv-search-input').value = '';
+            renderIPTVGroups();
+            renderIPTVGrid();
+        }
+
+        function filterIPTV() {
+            iptvCurrentGroup = 'all';
+            renderIPTVGroups();
+            renderIPTVGrid();
+        }
+
+        function renderIPTVGrid() {
+            const query = document.getElementById('iptv-search-input').value.toLowerCase();
+            let filtered = iptvChannels;
+            if (iptvCurrentGroup !== 'all') filtered = filtered.filter(c=>c.group===iptvCurrentGroup);
+            if (query) filtered = filtered.filter(c=>c.name.toLowerCase().includes(query)||c.group.toLowerCase().includes(query));
+            
+            document.getElementById('iptv-count').textContent = `${filtered.length} canales`;
+            
+            if (filtered.length === 0) {
+                document.getElementById('iptv-content').innerHTML = `<div class="iptv-loading"><span>🔍</span><div>Sin resultados</div></div>`;
+                return;
+            }
+
+            const grid = document.createElement('div');
+            grid.className = 'iptv-grid';
+            
+            // Render up to 200 channels for performance
+            const slice = filtered.slice(0, 200);
+            slice.forEach(ch => {
+                const card = document.createElement('div');
+                card.className = 'iptv-ch';
+                card.onclick = () => playIPTVChannel(ch);
+                
+                const logoHtml = ch.logo
+                    ? `<img class="iptv-ch-logo" src="${ch.logo}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" alt="">
+<div class="iptv-ch-logo no-logo" style="display:none;">📺</div>`
+                    : `<div class="iptv-ch-logo no-logo" style="display:flex;">📺</div>`;
+                
+                card.innerHTML = `${logoHtml}<div class="iptv-ch-name">${ch.name}</div><div class="iptv-ch-grp">${ch.group}</div>`;
+                grid.appendChild(card);
             });
+
+            if (filtered.length > 200) {
+                const more = document.createElement('div');
+                more.style.cssText = 'text-align:center;padding:16px;color:var(--muted);font-size:.8rem;';
+                more.textContent = `Mostrando 200 de ${filtered.length}. Usa el buscador para encontrar más.`;
+                grid.appendChild(more);
+            }
+
+            document.getElementById('iptv-content').innerHTML = '';
+            document.getElementById('iptv-content').appendChild(grid);
         }
 
-        function closeTV() {
-            const video = document.getElementById('tv-video');
-            video.pause(); video.src = ''; video.style.display = '';
-            const fi = document.getElementById('tv-iframe-fallback');
-            if(fi) fi.remove();
-            if(hlsPlayer) { hlsPlayer.destroy(); hlsPlayer = null; }
-            document.getElementById('tv-player-view').classList.add('hidden');
-            document.getElementById('tv-view').classList.remove('hidden');
-            document.getElementById('main-header').classList.remove('hidden');
+        async function playIPTVChannel(ch) {
+            // Load HLS.js if needed
+            if (!window.Hls) {
+                await new Promise((res,rej) => {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js';
+                    s.onload = res; s.onerror = rej;
+                    document.head.appendChild(s);
+                });
+            }
+
+            document.getElementById('iptv-view').classList.add('hidden');
+            document.getElementById('iptv-player-view').classList.remove('hidden');
+            document.getElementById('main-header').classList.add('hidden');
+            document.getElementById('iptv-player-name').textContent = ch.name;
+            document.getElementById('iptv-player-name2').textContent = ch.name;
+            document.getElementById('iptv-player-grp').textContent = ch.group;
+            document.getElementById('iptv-error-overlay').classList.add('hidden');
+
+            const video = document.getElementById('iptv-video');
+            if (iptvHls) { iptvHls.destroy(); iptvHls = null; }
+
+            const url = ch.url;
+            const isHLS = url.includes('.m3u8') || url.includes('playlist');
+
+            if (isHLS && Hls.isSupported()) {
+                iptvHls = new Hls({ lowLatencyMode: true, maxBufferLength: 20 });
+                iptvHls.loadSource(url);
+                iptvHls.attachMedia(video);
+                iptvHls.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(()=>{}));
+                iptvHls.on(Hls.Events.ERROR, (e, data) => {
+                    if (data.fatal) document.getElementById('iptv-error-overlay').classList.remove('hidden');
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = url;
+                video.play().catch(()=>{});
+            } else {
+                video.src = url;
+                video.play().catch(()=>document.getElementById('iptv-error-overlay').classList.remove('hidden'));
+            }
+
             window.scrollTo(0,0);
+        }
+
+        function closeIPTVPlayer() {
+            const video = document.getElementById('iptv-video');
+            video.pause(); video.src = '';
+            if (iptvHls) { iptvHls.destroy(); iptvHls = null; }
+            document.getElementById('iptv-player-view').classList.add('hidden');
+            document.getElementById('iptv-view').classList.remove('hidden');
+            document.getElementById('main-header').classList.remove('hidden');
         }
 
         window.onload = init;
@@ -656,6 +699,53 @@
         <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.9));padding:20px 16px 14px;">
             <div style="font-size:0.65rem;color:rgba(255,255,255,0.4);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Canales</div>
             <div id="tv-ch-list" style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;"></div>
+        </div>
+    </div>
+
+
+    <!-- ═══ IPTV VIEW ═══ -->
+    <div id="iptv-view" class="hidden">
+        <div class="iptv-header">
+            <div class="iptv-logo" onclick="showCatalog()">
+                <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+                TV EN VIVO
+            </div>
+            <div class="iptv-search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input type="text" id="iptv-search-input" placeholder="Buscar canal..." oninput="filterIPTV()">
+            </div>
+            <button onclick="showCatalog()" style="background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:7px 12px;font-size:.75rem;cursor:pointer;white-space:nowrap;flex-shrink:0;">← Novelas</button>
+        </div>
+        <div class="iptv-lists" id="iptv-lists"></div>
+        <div class="iptv-groups" id="iptv-groups"></div>
+        <div class="iptv-count" id="iptv-count"></div>
+        <div id="iptv-content">
+            <div class="iptv-loading">
+                <div class="iptv-spinner">📡</div>
+                <div>Cargando canales...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ IPTV PLAYER VIEW ═══ -->
+    <div id="iptv-player-view" class="hidden">
+        <div class="iptv-player-bar">
+            <button class="iptv-back-btn" onclick="closeIPTVPlayer()">←</button>
+            <div style="flex:1;min-width:0;">
+                <div class="iptv-player-chname" id="iptv-player-name">Canal</div>
+                <div class="iptv-player-grp" id="iptv-player-grp"></div>
+            </div>
+            <span class="live-badge"><span class="live-dot"></span>EN VIVO</span>
+        </div>
+        <video id="iptv-video" controls playsinline autoplay></video>
+        <div id="iptv-error-overlay" class="iptv-error-overlay hidden">
+            <span style="font-size:2.5rem;">📡</span>
+            <div style="font-size:.9rem;">Canal no disponible</div>
+            <div style="font-size:.75rem;">El stream no pudo conectarse</div>
+            <button onclick="closeIPTVPlayer()" style="margin-top:12px;background:var(--accent);border:none;color:white;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:.85rem;">Volver</button>
+        </div>
+        <div class="iptv-player-bottom">
+            <div class="iptv-player-chname" id="iptv-player-name2"></div>
         </div>
     </div>
 
