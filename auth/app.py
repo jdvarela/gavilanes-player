@@ -427,6 +427,22 @@ def static_files(filename):
     return send_from_directory(STATIC_DIR, filename)
 
 
+@app.route("/manifest.json")
+def manifest():
+    return send_from_directory(STATIC_DIR, "manifest.json")
+
+@app.route("/sw.js")
+def service_worker():
+    resp = send_from_directory(STATIC_DIR, "sw.js")
+    resp.headers["Content-Type"] = "application/javascript"
+    resp.headers["Service-Worker-Allowed"] = "/"
+    return resp
+
+@app.route("/static/icon-192.png")
+def pwa_icon():
+    return send_from_directory(STATIC_DIR, "icon-192.png")
+
+
 # ─────────────────────────────────────────
 # TV EN VIVO — proxy para extraer stream m3u8
 # ─────────────────────────────────────────

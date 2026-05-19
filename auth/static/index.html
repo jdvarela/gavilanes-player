@@ -162,6 +162,67 @@
             .iptv-header{padding:12px 14px 0;}
         }
 
+
+        /* ═══ THEMES ═══ */
+        :root { --theme: dark; }
+        body.theme-amoled { --bg:#000000; --surface:#0a0a0a; --surface2:#101010; --border:#1a1a1a; }
+        body.theme-light  { --bg:#f0f0f5; --surface:#ffffff; --surface2:#f8f8fc; --border:#e0e0ea; --text:#0a0a14; --muted:#6a6a8a; --accent:#e50914; }
+        body.theme-light .logo { color: var(--accent); }
+        body.theme-light .series-card, body.theme-light .episode-card { box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+
+        /* Theme picker */
+        .theme-picker { display:flex; gap:8px; align-items:center; }
+        .theme-dot { width:22px; height:22px; border-radius:50%; border:2px solid transparent; cursor:pointer; transition:all .2s; flex-shrink:0; }
+        .theme-dot:hover, .theme-dot.active { border-color:#fff; transform:scale(1.2); }
+        .theme-dot.dark   { background:linear-gradient(135deg,#1a1a2e,#0a0a14); }
+        .theme-dot.amoled { background:#000; }
+        .theme-dot.light  { background:linear-gradient(135deg,#f0f0f5,#ffffff); border-color:#ccc; }
+        .theme-dot.light.active { border-color:#e50914; }
+
+        /* ═══ GLOBAL SEARCH ═══ */
+        #global-search-wrap { position:fixed; inset:0; background:rgba(0,0,0,.85); backdrop-filter:blur(12px); z-index:2000; display:flex; flex-direction:column; align-items:center; padding-top:80px; }
+        #global-search-wrap.hidden { display:none; }
+        .gs-box { width:100%; max-width:620px; padding:0 20px; }
+        .gs-input-row { display:flex; gap:10px; align-items:center; margin-bottom:20px; }
+        .gs-input { flex:1; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.2); border-radius:14px; padding:14px 18px; color:#fff; font-size:1.1rem; outline:none; }
+        .gs-input::placeholder { color:rgba(255,255,255,.35); }
+        .gs-close { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); border-radius:50%; width:44px; height:44px; color:#fff; font-size:1.3rem; cursor:pointer; flex-shrink:0; }
+        .gs-results { max-height:65vh; overflow-y:auto; scrollbar-width:thin; }
+        .gs-section { font-size:.7rem; text-transform:uppercase; letter-spacing:.1em; color:rgba(255,255,255,.4); margin:14px 0 8px; font-weight:700; }
+        .gs-item { display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:10px; cursor:pointer; transition:background .15s; }
+        .gs-item:hover { background:rgba(255,255,255,.08); }
+        .gs-item-icon { font-size:1.4rem; flex-shrink:0; }
+        .gs-item-name { font-size:.9rem; font-weight:600; color:#fff; }
+        .gs-item-sub  { font-size:.72rem; color:rgba(255,255,255,.45); }
+
+        /* ═══ FAVORITOS ═══ */
+        .fav-btn { position:absolute; top:7px; left:7px; background:rgba(0,0,0,.5); border:none; border-radius:50%; width:26px; height:26px; font-size:.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform .2s; }
+        .fav-btn:hover { transform:scale(1.2); }
+        .iptv-ch { position:relative; }
+
+        /* ═══ STATS PANEL ═══ */
+        .stats-panel { position:fixed; inset:0; background:rgba(0,0,0,.9); backdrop-filter:blur(16px); z-index:1500; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px 20px; }
+        .stats-panel.hidden { display:none; }
+        .stats-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; width:100%; max-width:420px; margin:20px 0; }
+        .stat-card { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:20px; text-align:center; }
+        .stat-num { font-size:2.2rem; font-weight:800; color:var(--accent); font-family:'Bebas Neue',sans-serif; }
+        .stat-label { font-size:.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-top:4px; }
+
+        /* ═══ CUSTOM M3U ═══ */
+        .custom-m3u-row { display:flex; gap:8px; padding:10px 20px 14px; }
+        .custom-m3u-input { flex:1; background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:10px; padding:8px 12px; color:var(--text); font-size:.8rem; outline:none; }
+        .custom-m3u-input:focus { border-color:var(--accent); }
+        .custom-m3u-btn { background:var(--accent); border:none; color:#fff; border-radius:10px; padding:8px 14px; font-size:.78rem; font-weight:600; cursor:pointer; white-space:nowrap; }
+
+        /* ═══ PiP BUTTON ═══ */
+        .pip-btn { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); border-radius:8px; padding:6px 10px; color:#fff; font-size:.75rem; cursor:pointer; display:flex; align-items:center; gap:5px; }
+        .pip-btn:hover { background:rgba(255,255,255,.2); }
+
+        /* ═══ LAST WATCHED BANNER ═══ */
+        #last-tv-banner { background:linear-gradient(135deg,rgba(229,9,20,.15),rgba(229,9,20,.05)); border:1px solid rgba(229,9,20,.25); border-radius:12px; margin:0 20px 16px; padding:12px 16px; display:flex; align-items:center; gap:12px; cursor:pointer; }
+        #last-tv-banner.hidden { display:none; }
+        #last-tv-banner:hover { background:linear-gradient(135deg,rgba(229,9,20,.25),rgba(229,9,20,.1)); }
+
     </style>
 </head>
 <body>
@@ -172,7 +233,19 @@
             <span style="width:7px;height:7px;border-radius:50%;background:#e50914;display:inline-block;animation:livepulse 1.2s ease-in-out infinite;box-shadow:0 0 8px #e50914;"></span> TV EN VIVO
         </button>
         <div class="header-pill"><span class="dot" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--success); margin-right:5px; box-shadow:0 0 8px var(--success);"></span> ONLINE</div>
-    </header>
+    
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <!-- Global Search -->
+            <button onclick="openGlobalSearch()" title="Buscar" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:50%;width:34px;height:34px;color:#fff;cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;" onmouseover="this.style.background='rgba(255,255,255,.15)'" onmouseout="this.style.background='rgba(255,255,255,.07)'">🔍</button>
+            <!-- Stats -->
+            <button onclick="openStats()" title="Estadísticas" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:50%;width:34px;height:34px;color:#fff;cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;" onmouseover="this.style.background='rgba(255,255,255,.15)'" onmouseout="this.style.background='rgba(255,255,255,.07)'">📊</button>
+            <!-- Theme Picker -->
+            <div class="theme-picker">
+                <div class="theme-dot dark active" id="td-dark"  onclick="setTheme('dark')"  title="Dark"></div>
+                <div class="theme-dot amoled" id="td-amoled" onclick="setTheme('amoled')" title="AMOLED"></div>
+                <div class="theme-dot light" id="td-light"  onclick="setTheme('light')"  title="Light"></div>
+            </div>
+        </div></header>
 
     <!-- CATALOG VIEW -->
     <div id="catalog-view" class="view">
@@ -442,17 +515,262 @@
 
 
 
+
+        // ═══════════════════════════════════════════════
+        // PWA — Service Worker Registration
+        // ═══════════════════════════════════════════════
+        if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            });
+        }
+
+        // ═══════════════════════════════════════════════
+        // THEME SYSTEM
+        // ═══════════════════════════════════════════════
+        function setTheme(t) {
+            document.body.className = document.body.className
+                .replace(/theme-\S+/g, '').trim();
+            if (t !== 'dark') document.body.classList.add('theme-' + t);
+            localStorage.setItem('mn_theme', t);
+            document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active'));
+            const dot = document.getElementById('td-' + t);
+            if (dot) dot.classList.add('active');
+        }
+        (function() {
+            const saved = localStorage.getItem('mn_theme') || 'dark';
+            setTheme(saved);
+        })();
+
+        // ═══════════════════════════════════════════════
+        // GLOBAL SEARCH
+        // ═══════════════════════════════════════════════
+        function openGlobalSearch() {
+            document.getElementById('global-search-wrap').classList.remove('hidden');
+            setTimeout(() => document.getElementById('gs-input').focus(), 50);
+        }
+        function closeGlobalSearch() {
+            document.getElementById('global-search-wrap').classList.add('hidden');
+            document.getElementById('gs-input').value = '';
+            document.getElementById('gs-results').innerHTML = '';
+        }
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeGlobalSearch();
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openGlobalSearch(); }
+        });
+        function runGlobalSearch() {
+            const q = document.getElementById('gs-input').value.trim().toLowerCase();
+            const out = document.getElementById('gs-results');
+            if (q.length < 2) { out.innerHTML = '<div style="color:rgba(255,255,255,.3);text-align:center;padding:30px;font-size:.85rem;">Escribe al menos 2 caracteres...</div>'; return; }
+            
+            let html = '';
+            
+            // Search novelas
+            const novelasHits = Object.values(NOVELAS_META).filter(m =>
+                m.titulo.toLowerCase().includes(q) || m.genero.toLowerCase().includes(q)
+            );
+            if (novelasHits.length) {
+                html += '<div class="gs-section">📺 Novelas y Series</div>';
+                novelasHits.forEach(m => {
+                    html += `<div class="gs-item" onclick="closeGlobalSearch();showDetails('${m.id}')">
+                        <span class="gs-item-icon">${m.emoji}</span>
+                        <div><div class="gs-item-name">${m.titulo}</div><div class="gs-item-sub">${m.genero} · ${m.año}</div></div>
+                    </div>`;
+                });
+            }
+
+            // Search IPTV channels across loaded lists
+            const iptvHits = [];
+            Object.values(iptvLoaded).forEach(list => {
+                list.forEach(ch => { if (ch.name.toLowerCase().includes(q) || ch.group.toLowerCase().includes(q)) iptvHits.push(ch); });
+            });
+            const unique = [...new Map(iptvHits.map(c=>[c.name+c.url,c])).values()].slice(0,15);
+            if (unique.length) {
+                html += '<div class="gs-section">📡 Canales IPTV</div>';
+                unique.forEach((ch, idx) => {
+                    const gsKey = 'gsiptv_' + idx;
+                    window[gsKey] = ch;
+                    html += `<div class="gs-item" onclick="closeGlobalSearch();playIPTVChannel(window['${gsKey}'])">
+                        <span class="gs-item-icon">${ch.logo ? '<img src="'+ch.logo+'" style="width:24px;height:24px;object-fit:contain;border-radius:4px;" onerror="this.style.display=\'none\'">' : '📺'}</span>
+                        <div><div class="gs-item-name">${ch.name}</div><div class="gs-item-sub">${ch.group}</div></div>
+                    </div>`;
+                });
+            }
+
+            if (!html) html = '<div style="color:rgba(255,255,255,.3);text-align:center;padding:30px;font-size:.85rem;">Sin resultados para "'+q+'"</div>';
+            out.innerHTML = html;
+        }
+
+        // ═══════════════════════════════════════════════
+        // STATS
+        // ═══════════════════════════════════════════════
+        function openStats() {
+            const history = prefs.history || {};
+            const watchedKeys = Object.keys(history).filter(k => history[k] === true);
+            const totalEps = watchedKeys.length;
+            const totalMins = totalEps * 45;
+            const totalHrs = Math.floor(totalMins / 60);
+            const totalDays = (totalMins / 60 / 24).toFixed(1);
+            
+            // Count per series
+            const bySeries = {};
+            watchedKeys.forEach(k => {
+                const parts = k.split('_');
+                const sid = parts[0];
+                bySeries[sid] = (bySeries[sid] || 0) + 1;
+            });
+
+            document.getElementById('stats-grid').innerHTML = `
+                <div class="stat-card"><div class="stat-num">${totalEps}</div><div class="stat-label">Episodios vistos</div></div>
+                <div class="stat-card"><div class="stat-num">${totalHrs}h</div><div class="stat-label">Tiempo estimado</div></div>
+                <div class="stat-card"><div class="stat-num">${totalDays}</div><div class="stat-label">Días de contenido</div></div>
+                <div class="stat-card"><div class="stat-num">${Object.keys(bySeries).length}</div><div class="stat-label">Series activas</div></div>
+            `;
+            
+            let breakdown = '';
+            Object.entries(bySeries).forEach(([sid, count]) => {
+                const meta = NOVELAS_META[sid];
+                if (!meta) return;
+                const totalCaps = (EPISODES[sid] || []).length;
+                const pct = totalCaps ? Math.round(count/totalCaps*100) : 0;
+                breakdown += `<div style="margin:8px 0;background:rgba(255,255,255,.04);border-radius:10px;padding:12px 14px;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                        <span style="font-size:.85rem;font-weight:600;">${meta.emoji} ${meta.titulo}</span>
+                        <span style="font-size:.75rem;color:var(--muted);">${count}/${totalCaps} eps</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,.08);border-radius:4px;height:4px;">
+                        <div style="background:var(--accent);width:${pct}%;height:4px;border-radius:4px;transition:width .5s;"></div>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('stats-series-breakdown').innerHTML = breakdown || '<div style="color:var(--muted);font-size:.8rem;text-align:center;padding:20px;">Aún no has marcado episodios como vistos</div>';
+            
+            document.getElementById('stats-panel').classList.remove('hidden');
+        }
+        function closeStats() { document.getElementById('stats-panel').classList.add('hidden'); }
+        function clearHistory() {
+            if (!confirm('¿Borrar todo el historial de episodios vistos?')) return;
+            prefs.history = {}; savePrefs();
+            closeStats(); openStats();
+        }
+
+        // ═══════════════════════════════════════════════
+        // THEME — ensure showDetails exists for search
+        // ═══════════════════════════════════════════════
+        function showDetails(id) { selectSeries(id); }
+
+        // ═══════════════════════════════════════════════
+        // IPTV FAVORITOS
+        // ═══════════════════════════════════════════════
+        function getFavs() { return JSON.parse(localStorage.getItem('mn_favs') || '[]'); }
+        function setFavs(f) { localStorage.setItem('mn_favs', JSON.stringify(f)); }
+        function isFav(ch) { return getFavs().some(f => f.url === ch.url); }
+        function toggleFav(ch, e) {
+            e.stopPropagation();
+            const favs = getFavs();
+            const idx = favs.findIndex(f => f.url === ch.url);
+            if (idx >= 0) favs.splice(idx, 1); else favs.push(ch);
+            setFavs(favs);
+            renderIPTVGrid(); // refresh
+        }
+
+        // ═══════════════════════════════════════════════
+        // LAST WATCHED TV CHANNEL
+        // ═══════════════════════════════════════════════
+        function saveLastChannel(ch) { localStorage.setItem('mn_last_tv', JSON.stringify(ch)); }
+        function getLastChannel() { try { return JSON.parse(localStorage.getItem('mn_last_tv')); } catch(e) { return null; } }
+        function showLastChannelBanner() {
+            const ch = getLastChannel();
+            const banner = document.getElementById('last-tv-banner');
+            if (ch) {
+                document.getElementById('last-tv-name').textContent = ch.emoji_flag ? ch.emoji_flag + ' ' + ch.name : ch.name;
+                banner.classList.remove('hidden');
+            } else {
+                banner.classList.add('hidden');
+            }
+        }
+        function resumeLastChannel() {
+            const ch = getLastChannel();
+            if (ch) playIPTVChannel(ch);
+        }
+
+        // ═══════════════════════════════════════════════
+        // CUSTOM M3U
+        // ═══════════════════════════════════════════════
+        async function addCustomM3U() {
+            const url = document.getElementById('custom-m3u-url').value.trim();
+            if (!url || !url.startsWith('http')) { alert('Ingresa una URL válida (.m3u)'); return; }
+            const btn = document.querySelector('.custom-m3u-btn');
+            btn.textContent = '⏳ Cargando...'; btn.disabled = true;
+            try {
+                const resp = await fetch(url);
+                const text = await resp.text();
+                const channels = parseM3U(text);
+                if (!channels.length) throw new Error('No channels found');
+                const id = 'custom_' + Date.now();
+                const name = url.split('/').pop().replace('.m3u','').slice(0,20) || 'Mi Lista';
+                IPTV_LISTS.push({ id, name: '⭐ ' + name, url });
+                iptvLoaded[id] = channels;
+                iptvCurrentList = id;
+                document.getElementById('custom-m3u-url').value = '';
+                renderIPTVLists();
+                iptvChannels = channels;
+                iptvCurrentGroup = 'all';
+                renderIPTVGroups();
+                renderIPTVGrid();
+                // Save custom lists
+                const saved = JSON.parse(localStorage.getItem('mn_custom_m3u') || '[]');
+                saved.push({ id, name: '⭐ ' + name, url });
+                localStorage.setItem('mn_custom_m3u', JSON.stringify(saved));
+            } catch(e) {
+                alert('No se pudo cargar la lista: ' + e.message);
+            }
+            btn.textContent = '+ Agregar'; btn.disabled = false;
+        }
+        // Restore custom lists on load
+        (function() {
+            const saved = JSON.parse(localStorage.getItem('mn_custom_m3u') || '[]');
+            saved.forEach(l => IPTV_LISTS.push(l));
+        })();
+
+        // ═══════════════════════════════════════════════
+        // PiP — Picture in Picture
+        // ═══════════════════════════════════════════════
+        async function togglePiP() {
+            const video = document.getElementById('iptv-video');
+            if (!video) return;
+            try {
+                if (document.pictureInPictureElement) {
+                    await document.exitPictureInPicture();
+                } else if (document.pictureInPictureEnabled) {
+                    await video.requestPictureInPicture();
+                }
+            } catch(e) { console.warn('PiP not supported:', e); }
+        }
+
+
         // ═══════════════════════════════════════════════
         // IPTV ENGINE
         // ═══════════════════════════════════════════════
         const IPTV_LISTS = [
             { id:'spa',  name:'🌎 Español (1700+)', url:'https://iptv-org.github.io/iptv/languages/spa.m3u' },
-            { id:'es',   name:'🇪🇸 España (288)',    url:'https://iptv-org.github.io/iptv/countries/es.m3u'  },
+            { id:'es',   name:'🇪🇸 España',         url:'https://iptv-org.github.io/iptv/countries/es.m3u'  },
             { id:'mx',   name:'🇲🇽 México',          url:'https://iptv-org.github.io/iptv/countries/mx.m3u'  },
             { id:'cr',   name:'🇨🇷 Costa Rica',      url:'https://iptv-org.github.io/iptv/countries/cr.m3u'  },
-            { id:'us',   name:'🇺🇸 USA (English)',   url:'https://iptv-org.github.io/iptv/countries/us.m3u'  },
+            { id:'us',   name:'🇺🇸 USA English',     url:'https://iptv-org.github.io/iptv/countries/us.m3u'  },
             { id:'ar',   name:'🇦🇷 Argentina',       url:'https://iptv-org.github.io/iptv/countries/ar.m3u'  },
             { id:'co',   name:'🇨🇴 Colombia',        url:'https://iptv-org.github.io/iptv/countries/co.m3u'  },
+            { id:'ve',   name:'🇻🇪 Venezuela',       url:'https://iptv-org.github.io/iptv/countries/ve.m3u'  },
+            { id:'cl',   name:'🇨🇱 Chile',           url:'https://iptv-org.github.io/iptv/countries/cl.m3u'  },
+            { id:'pe',   name:'🇵🇪 Perú',            url:'https://iptv-org.github.io/iptv/countries/pe.m3u'  },
+            { id:'br',   name:'🇧🇷 Brasil',          url:'https://iptv-org.github.io/iptv/countries/br.m3u'  },
+            { id:'ec',   name:'🇪🇨 Ecuador',         url:'https://iptv-org.github.io/iptv/countries/ec.m3u'  },
+            { id:'pa',   name:'🇵🇦 Panamá',          url:'https://iptv-org.github.io/iptv/countries/pa.m3u'  },
+            { id:'do',   name:'🇩🇴 Rep. Dominicana', url:'https://iptv-org.github.io/iptv/countries/do.m3u'  },
+            { id:'py',   name:'🇵🇾 Paraguay',        url:'https://iptv-org.github.io/iptv/countries/py.m3u'  },
+            { id:'uy',   name:'🇺🇾 Uruguay',         url:'https://iptv-org.github.io/iptv/countries/uy.m3u'  },
+            { id:'bo',   name:'🇧🇴 Bolivia',         url:'https://iptv-org.github.io/iptv/countries/bo.m3u'  },
+            { id:'gt',   name:'🇬🇹 Guatemala',       url:'https://iptv-org.github.io/iptv/countries/gt.m3u'  },
         ];
 
         let iptvChannels = [];
@@ -469,16 +787,29 @@
             document.getElementById('main-header').classList.remove('hidden');
             renderIPTVLists();
             if (!iptvLoaded[iptvCurrentList]) loadIPTVList(iptvCurrentList);
+            showLastChannelBanner();
             window.scrollTo(0,0);
         }
 
         function renderIPTVLists() {
-            document.getElementById('iptv-lists').innerHTML = IPTV_LISTS.map(l =>
+            const favCount = getFavs().length;
+            const favBtn = `<button class="iptv-list-btn ${'favs'===iptvCurrentList?'active':''}" onclick="switchIPTVList('favs')">❤️ Favoritos${favCount?' ('+favCount+')':''}</button>`;
+            document.getElementById('iptv-lists').innerHTML = favBtn + IPTV_LISTS.map(l =>
                 `<button class="iptv-list-btn ${l.id===iptvCurrentList?'active':''}" onclick="switchIPTVList('${l.id}')">${l.name}</button>`
             ).join('');
         }
 
         async function switchIPTVList(id) {
+            if (id === 'favs') {
+                iptvCurrentList = 'favs';
+                iptvCurrentGroup = 'all';
+                document.getElementById('iptv-search-input').value = '';
+                iptvChannels = getFavs();
+                renderIPTVLists();
+                renderIPTVGroups();
+                renderIPTVGrid();
+                return;
+            }
             iptvCurrentList = id;
             iptvCurrentGroup = 'all';
             document.getElementById('iptv-search-input').value = '';
@@ -573,7 +904,9 @@
 <div class="iptv-ch-logo no-logo" style="display:none;">📺</div>`
                     : `<div class="iptv-ch-logo no-logo" style="display:flex;">📺</div>`;
                 
-                card.innerHTML = `${logoHtml}<div class="iptv-ch-name">${ch.name}</div><div class="iptv-ch-grp">${ch.group}</div>`;
+                const faved = isFav(ch);
+                card.innerHTML = `<button class="fav-btn" title="${faved?'Quitar favorito':'Añadir favorito'}">${faved?'❤️':'🤍'}</button>${logoHtml}<div class="iptv-ch-name">${ch.name}</div><div class="iptv-ch-grp">${ch.group}</div>`;
+                card.querySelector('.fav-btn').addEventListener('click', e => toggleFav(ch, e));
                 grid.appendChild(card);
             });
 
@@ -589,6 +922,8 @@
         }
 
         async function playIPTVChannel(ch) {
+            // Save as last watched
+            saveLastChannel(ch);
             // Load HLS.js if needed
             if (!window.Hls) {
                 await new Promise((res,rej) => {
@@ -713,6 +1048,20 @@
         <div class="iptv-lists" id="iptv-lists"></div>
         <div class="iptv-groups" id="iptv-groups"></div>
         <div class="iptv-count" id="iptv-count"></div>
+        <!-- Last watched banner -->
+        <div id="last-tv-banner" class="hidden" onclick="resumeLastChannel()">
+            <span style="font-size:1.6rem;">▶️</span>
+            <div style="flex:1;">
+                <div style="font-size:.65rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;">Continuar viendo</div>
+                <div style="font-size:.9rem;font-weight:600;color:#fff;" id="last-tv-name">Canal</div>
+            </div>
+            <span style="font-size:.8rem;color:rgba(229,9,20,.8);font-weight:700;">EN VIVO →</span>
+        </div>
+        <!-- Custom M3U -->
+        <div class="custom-m3u-row">
+            <input type="text" class="custom-m3u-input" id="custom-m3u-url" placeholder="Pega tu URL de lista .m3u aquí...">
+            <button class="custom-m3u-btn" onclick="addCustomM3U()">+ Agregar</button>
+        </div>
         <div id="iptv-content">
             <div class="iptv-loading">
                 <div class="iptv-spinner">📡</div>
@@ -729,6 +1078,7 @@
                 <div class="iptv-player-chname" id="iptv-player-name">Canal</div>
                 <div class="iptv-player-grp" id="iptv-player-grp"></div>
             </div>
+            <button class="pip-btn" onclick="togglePiP()" title="Picture in Picture">⧉ PiP</button>
             <span class="live-badge"><span class="live-dot"></span>EN VIVO</span>
         </div>
         <video id="iptv-video" controls playsinline autoplay></video>
@@ -741,6 +1091,28 @@
         <div class="iptv-player-bottom">
             <div class="iptv-player-chname" id="iptv-player-name2"></div>
         </div>
+    </div>
+
+
+    <!-- ═══ GLOBAL SEARCH OVERLAY ═══ -->
+    <div id="global-search-wrap" class="hidden">
+        <div class="gs-box">
+            <div class="gs-input-row">
+                <input type="text" class="gs-input" id="gs-input" placeholder="Buscar novelas, canales..." oninput="runGlobalSearch()" autofocus>
+                <button class="gs-close" onclick="closeGlobalSearch()">✕</button>
+            </div>
+            <div class="gs-results" id="gs-results"></div>
+        </div>
+    </div>
+
+    <!-- ═══ STATS PANEL ═══ -->
+    <div class="stats-panel hidden" id="stats-panel">
+        <button onclick="closeStats()" style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,.1);border:none;color:#fff;border-radius:50%;width:40px;height:40px;font-size:1.2rem;cursor:pointer;">✕</button>
+        <div style="font-size:1.4rem;font-weight:700;color:#fff;margin-bottom:4px;">📊 Mis Estadísticas</div>
+        <div style="font-size:.8rem;color:var(--muted);margin-bottom:20px;">Tu historial de reproducción</div>
+        <div class="stats-grid" id="stats-grid"></div>
+        <div id="stats-series-breakdown" style="width:100%;max-width:420px;margin-top:8px;"></div>
+        <button onclick="clearHistory()" style="margin-top:20px;background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.2);color:#ff5555;border-radius:8px;padding:10px 20px;cursor:pointer;font-size:.8rem;">🗑️ Borrar historial</button>
     </div>
 
 </body>
