@@ -125,14 +125,14 @@
         .iptv-search input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:9px 12px 9px 36px;color:var(--text);font-size:.84rem;outline:none;transition:all .2s;}
         .iptv-search input:focus{border-color:var(--accent);background:rgba(229,9,20,.04);}
         .iptv-search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--muted);}
-        .iptv-lists{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:10px 20px;border-bottom:1px solid var(--border);}
+        .iptv-lists{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;padding:10px 20px;border-bottom:1px solid var(--border);-webkit-overflow-scrolling:touch;}
         .iptv-lists::-webkit-scrollbar{display:none;}
         .iptv-list-btn{padding:6px 14px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--muted);font-size:.76rem;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0;}
         .iptv-list-btn:hover{background:rgba(255,255,255,.07);color:var(--text);}
         .iptv-list-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
         .iptv-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:60px 20px;color:var(--muted);}
         .iptv-spinner{font-size:2.5rem;animation:spin2 1s linear infinite;}
-        .iptv-groups{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding:8px 20px;background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);}
+        .iptv-groups{display:flex;flex-wrap:nowrap;gap:5px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;padding:8px 20px;background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);-webkit-overflow-scrolling:touch;}
         .iptv-groups::-webkit-scrollbar{display:none;}
         .iptv-grp-btn{padding:5px 12px;border-radius:20px;background:transparent;border:1px solid transparent;color:var(--muted);font-size:.72rem;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;font-weight:500;}
         .iptv-grp-btn:hover{background:rgba(255,255,255,.04);color:var(--text);}
@@ -846,6 +846,7 @@
                 iptvCurrentGroup = 'all';
                 renderIPTVGroups();
                 renderIPTVGrid();
+                enableDragScroll(document.getElementById('iptv-groups'));
                 // Save custom lists
                 const saved = JSON.parse(localStorage.getItem('mn_custom_m3u') || '[]');
                 saved.push({ id, name: '⭐ ' + name, url });
@@ -916,6 +917,7 @@
             renderIPTVLists();
             if (!iptvLoaded[iptvCurrentList]) loadIPTVList(iptvCurrentList);
             showLastChannelBanner();
+            setTimeout(() => { enableDragScroll(document.getElementById('iptv-lists')); enableDragScroll(document.getElementById('iptv-groups')); }, 100);
             window.scrollTo(0,0);
         }
 
@@ -987,7 +989,7 @@
         function renderIPTVGroups() {
             const groups = ['all', ...new Set(iptvChannels.map(c=>c.group))].slice(0, 30);
             document.getElementById('iptv-groups').innerHTML = groups.map(g =>
-                `<button class="iptv-grp-btn ${g===iptvCurrentGroup?'active':''}" onclick="setIPTVGroup('${g.replace(/'/g,"\\'")}'">${g==='all'?'Todos':g}</button>`
+                `<button class="iptv-grp-btn ${g===iptvCurrentGroup?'active':''}" onclick="setIPTVGroup('${g.replace(/'/g,"\\'")}')">${g==='all'?'Todos':g}</button>`
             ).join('');
         }
 
@@ -1126,6 +1128,28 @@
                 if (d) d.classList.toggle('active', t === saved);
             });
         }
+
+        // ═══════════════════════════════════════════════
+        // DRAG-TO-SCROLL for IPTV pill bars (PC)
+        // ═══════════════════════════════════════════════
+        function enableDragScroll(el) {
+            if (!el) return;
+            let isDown = false, startX, scrollLeft;
+            el.addEventListener('mousedown', e => {
+                isDown = true; el.classList.add('dragging');
+                startX = e.pageX - el.offsetLeft;
+                scrollLeft = el.scrollLeft;
+            });
+            el.addEventListener('mouseleave', () => { isDown = false; el.classList.remove('dragging'); });
+            el.addEventListener('mouseup',    () => { isDown = false; el.classList.remove('dragging'); });
+            el.addEventListener('mousemove',  e => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - el.offsetLeft;
+                el.scrollLeft = scrollLeft - (x - startX);
+            });
+        }
+
         window.onload = function() {
             // Init the app
             init();
