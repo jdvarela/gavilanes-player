@@ -223,29 +223,157 @@
         #last-tv-banner.hidden { display:none; }
         #last-tv-banner:hover { background:linear-gradient(135deg,rgba(229,9,20,.25),rgba(229,9,20,.1)); }
 
+
+        /* ═══ MOBILE SIDEBAR DRAWER ═══ */
+        .hamburger-btn {
+            display: none;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 8px;
+            flex-direction: column;
+            gap: 5px;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: background .2s;
+        }
+        .hamburger-btn:hover { background: rgba(255,255,255,.08); }
+        .hamburger-btn span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: var(--text);
+            border-radius: 2px;
+            transition: all .3s;
+        }
+
+        #side-drawer {
+            position: fixed;
+            top: 0; right: -300px;
+            width: 280px;
+            height: 100vh;
+            height: 100dvh;
+            background: var(--surface);
+            border-left: 1px solid var(--border);
+            z-index: 3000;
+            transition: right .3s cubic-bezier(.4,0,.2,1);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            box-shadow: -8px 0 32px rgba(0,0,0,.4);
+        }
+        #side-drawer.open { right: 0; }
+        #drawer-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.6);
+            backdrop-filter: blur(4px);
+            z-index: 2999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .3s;
+        }
+        #drawer-backdrop.open { opacity: 1; pointer-events: all; }
+
+        .drawer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        .drawer-logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.3rem;
+            color: var(--accent);
+            letter-spacing: .05em;
+        }
+        .drawer-close {
+            background: rgba(255,255,255,.07);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            width: 32px; height: 32px;
+            color: var(--text);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .drawer-section {
+            padding: 16px 20px 8px;
+            font-size: .65rem;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: var(--muted);
+            font-weight: 700;
+        }
+        .drawer-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background .15s;
+            border-radius: 0;
+            font-size: .9rem;
+            font-weight: 500;
+            color: var(--text);
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+        }
+        .drawer-item:hover { background: rgba(255,255,255,.05); }
+        .drawer-item-icon { font-size: 1.2rem; width: 28px; text-align: center; flex-shrink: 0; }
+        .drawer-item.live-item { color: #e50914; }
+        .drawer-item.live-item .drawer-item-icon { position: relative; }
+        .drawer-theme-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+        }
+        .drawer-theme-label { font-size: .85rem; color: var(--text); flex: 1; }
+        .drawer-divider { height: 1px; background: var(--border); margin: 8px 0; }
+        .drawer-version { padding: 14px 20px; font-size: .7rem; color: var(--muted); }
+
+        /* RESPONSIVE: hide desktop controls, show hamburger */
+        @media (max-width: 640px) {
+            .hamburger-btn { display: flex !important; }
+            .header-desktop-controls { display: none !important; }
+        }
+        @media (min-width: 641px) {
+            .hamburger-btn { display: none !important; }
+        }
+
     </style>
 </head>
 <body>
 
-    <header id="main-header">
+        <header id="main-header">
         <div class="logo" onclick="showCatalog()">MIS NOVELAS</div>
         <button onclick="showIPTV()" style="background:rgba(229,9,20,.12);border:1px solid rgba(229,9,20,.3);color:#fff;border-radius:8px;padding:7px 14px;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:7px;" onmouseover="this.style.background='rgba(229,9,20,.25)'" onmouseout="this.style.background='rgba(229,9,20,.12)'">
             <span style="width:7px;height:7px;border-radius:50%;background:#e50914;display:inline-block;animation:livepulse 1.2s ease-in-out infinite;box-shadow:0 0 8px #e50914;"></span> TV EN VIVO
         </button>
-        <div class="header-pill"><span class="dot" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--success); margin-right:5px; box-shadow:0 0 8px var(--success);"></span> ONLINE</div>
-    
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-            <!-- Global Search -->
-            <button onclick="openGlobalSearch()" title="Buscar" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:50%;width:34px;height:34px;color:#fff;cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;" onmouseover="this.style.background='rgba(255,255,255,.15)'" onmouseout="this.style.background='rgba(255,255,255,.07)'">🔍</button>
-            <!-- Stats -->
+
+        <!-- Desktop controls (hidden on mobile) -->
+        <div class="header-desktop-controls" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:auto;">
+            <div class="header-pill"><span class="dot" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#4ade80; animation: pulse 2s infinite;"></span>Online</div>
+            <button onclick="openGlobalSearch()" title="Buscar (Ctrl+K)" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:50%;width:34px;height:34px;color:#fff;cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;" onmouseover="this.style.background='rgba(255,255,255,.15)'" onmouseout="this.style.background='rgba(255,255,255,.07)'">🔍</button>
             <button onclick="openStats()" title="Estadísticas" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:50%;width:34px;height:34px;color:#fff;cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;" onmouseover="this.style.background='rgba(255,255,255,.15)'" onmouseout="this.style.background='rgba(255,255,255,.07)'">📊</button>
-            <!-- Theme Picker -->
             <div class="theme-picker">
                 <div class="theme-dot dark active" id="td-dark"  onclick="setTheme('dark')"  title="Dark"></div>
                 <div class="theme-dot amoled" id="td-amoled" onclick="setTheme('amoled')" title="AMOLED"></div>
                 <div class="theme-dot light" id="td-light"  onclick="setTheme('light')"  title="Light"></div>
             </div>
-        </div></header>
+        </div>
+
+        <!-- Mobile hamburger -->
+        <button class="hamburger-btn" id="hamburger-btn" onclick="openDrawer()" aria-label="Menú" style="margin-left:auto;">
+            <span></span><span></span><span></span>
+        </button>
+    </header>
 
     <!-- CATALOG VIEW -->
     <div id="catalog-view" class="view">
@@ -976,6 +1104,37 @@
             document.getElementById('main-header').classList.remove('hidden');
         }
 
+
+        // ═══════════════════════════════════════════════
+        // MOBILE SIDE DRAWER
+        // ═══════════════════════════════════════════════
+        function openDrawer() {
+            document.getElementById('side-drawer').classList.add('open');
+            document.getElementById('drawer-backdrop').classList.add('open');
+            document.body.style.overflow = 'hidden';
+            updateDrawerTheme();
+        }
+        function closeDrawer() {
+            document.getElementById('side-drawer').classList.remove('open');
+            document.getElementById('drawer-backdrop').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+        function updateDrawerTheme() {
+            const saved = localStorage.getItem('mn_theme') || 'dark';
+            ['dark','amoled','light'].forEach(t => {
+                const d = document.getElementById('td-' + t + '-m');
+                if (d) d.classList.toggle('active', t === saved);
+            });
+        }
+        // Close drawer on swipe right
+        (function() {
+            let startX = 0;
+            document.getElementById('side-drawer').addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+            document.getElementById('side-drawer').addEventListener('touchend', e => {
+                if (e.changedTouches[0].clientX - startX > 60) closeDrawer();
+            }, { passive: true });
+        })();
+
         window.onload = init;
     </script>
 
@@ -1113,6 +1272,55 @@
         <div class="stats-grid" id="stats-grid"></div>
         <div id="stats-series-breakdown" style="width:100%;max-width:420px;margin-top:8px;"></div>
         <button onclick="clearHistory()" style="margin-top:20px;background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.2);color:#ff5555;border-radius:8px;padding:10px 20px;cursor:pointer;font-size:.8rem;">🗑️ Borrar historial</button>
+    </div>
+
+
+    <!-- ═══ BACKDROP ═══ -->
+    <div id="drawer-backdrop" onclick="closeDrawer()"></div>
+
+    <!-- ═══ SIDE DRAWER ═══ -->
+    <div id="side-drawer">
+        <div class="drawer-header">
+            <div class="drawer-logo">⚡ MIS NOVELAS</div>
+            <button class="drawer-close" onclick="closeDrawer()">✕</button>
+        </div>
+
+        <div class="drawer-section">Navegación</div>
+        <button class="drawer-item" onclick="closeDrawer();showCatalog()">
+            <span class="drawer-item-icon">📺</span> Novelas & Series
+        </button>
+        <button class="drawer-item live-item" onclick="closeDrawer();showIPTV()">
+            <span class="drawer-item-icon" style="position:relative;">
+                📡<span style="position:absolute;top:-2px;right:-2px;width:7px;height:7px;background:#e50914;border-radius:50%;animation:livepulse 1.2s ease-in-out infinite;"></span>
+            </span>
+             TV EN VIVO
+        </button>
+
+        <div class="drawer-divider"></div>
+        <div class="drawer-section">Herramientas</div>
+
+        <button class="drawer-item" onclick="closeDrawer();openGlobalSearch()">
+            <span class="drawer-item-icon">🔍</span> Buscar canales y novelas
+        </button>
+        <button class="drawer-item" onclick="closeDrawer();openStats()">
+            <span class="drawer-item-icon">📊</span> Mis estadísticas
+        </button>
+
+        <div class="drawer-divider"></div>
+        <div class="drawer-section">Apariencia</div>
+
+        <div class="drawer-theme-row">
+            <span class="drawer-item-icon">🌙</span>
+            <span class="drawer-theme-label">Tema</span>
+            <div class="theme-picker" style="gap:10px;">
+                <div class="theme-dot dark" id="td-dark-m"  onclick="setTheme('dark');updateDrawerTheme()"  title="Dark"></div>
+                <div class="theme-dot amoled" id="td-amoled-m" onclick="setTheme('amoled');updateDrawerTheme()" title="AMOLED"></div>
+                <div class="theme-dot light" id="td-light-m"  onclick="setTheme('light');updateDrawerTheme()"  title="Light"></div>
+            </div>
+        </div>
+
+        <div class="drawer-divider"></div>
+        <div class="drawer-version">Mis Novelas & TV v2.0 · PWA</div>
     </div>
 
 </body>
