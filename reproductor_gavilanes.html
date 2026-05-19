@@ -114,6 +114,7 @@
             padding:3px 8px; border-radius:4px; text-transform:uppercase; flex-shrink:0; }
         .live-dot { width:6px; height:6px; border-radius:50%; background:#fff;
             animation:livepulse 1.2s ease-in-out infinite; flex-shrink:0; }
+        @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
         @keyframes livepulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(.6)} }
         
         .tv-cats { display:flex; gap:8px; margin-bottom:20px; overflow-x:auto; scrollbar-width:none; padding-bottom:4px; }
@@ -468,28 +469,117 @@
             `).join('');
         }
 
-        function openChannel(chId) {
+        // HLS.js loaded dynamically
+        let hlsPlayer = null;
+        let currentTVChannel = null;
+        const PROXY = 'https://corsproxy.io/?';
+
+        async function openChannel(chId) {
             const ch = CHANNELS.find(c=>c.id===chId);
             if(!ch) return;
+            currentTVChannel = ch;
+
             document.getElementById('tv-view').classList.add('hidden');
             document.getElementById('tv-player-view').classList.remove('hidden');
             document.getElementById('main-header').classList.add('hidden');
             document.getElementById('tv-ch-name').textContent = ch.emoji + ' ' + ch.name;
-            
-            // Load iframe
-            const url = `https://latamvidz1.com/canal.php?stream=${ch.stream}`;
-            document.getElementById('tv-video-container').innerHTML = `<iframe src="${url}" style="width:100%;height:100%;border:none;" frameborder="0" allowfullscreen="true" allow="autoplay; fullscreen"></iframe>`;
-            
-            // Render quick channel switcher
+
+            // Reset state
+            document.getElementById('tv-loading').style.display = 'flex';
+            document.getElementById('tv-fallback').classList.add('hidden');
+            document.getElementById('tv-status').textContent = 'Conectando al canal...';
+
+            // Render channel switcher
             document.getElementById('tv-ch-list').innerHTML = CHANNELS.map(c =>
-                `<button onclick="openChannel('${c.id}')" style="padding:7px 14px;border-radius:20px;background:${c.id===chId?'var(--accent)':'rgba(255,255,255,0.05)'};border:1px solid ${c.id===chId?'var(--accent)':'var(--border)'};color:white;font-size:0.78rem;font-weight:${c.id===chId?'700':'400'};cursor:pointer;white-space:nowrap;transition:all 0.2s;flex-shrink:0;">${c.emoji} ${c.name}</button>`
+                `<button onclick="openChannel('${c.id}')" style="padding:7px 14px;border-radius:20px;background:${c.id===chId?'var(--accent)':'rgba(255,255,255,0.1)'};border:1px solid ${c.id===chId?'var(--accent)':'rgba(255,255,255,0.15)'};color:white;font-size:0.78rem;font-weight:${c.id===chId?'700':'400'};cursor:pointer;white-space:nowrap;flex-shrink:0;">${c.emoji} ${c.name}</button>`
             ).join('');
-            
+
             window.scrollTo(0,0);
+
+            // Load HLS.js if not loaded
+            if (!window.Hls) {
+                await loadScript('https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js');
+            }
+
+            // Fetch m3u8 URL via CORS proxy
+            const canalUrl = `https://latamvidz1.com/canal.php?stream=${ch.stream}`;
+            try {
+                document.getElementById('tv-status').textContent = 'Obteniendo stream...';
+                const resp = await fetch(PROXY + encodeURIComponent(canalUrl), { signal: AbortSignal.timeout(10000) });
+                const html = await resp.text();
+                const match = html.match(/var playbackURL\s*=\s*"([^"]+)"/);
+                if (!match) throw new Error('No m3u8 found');
+                const m3u8 = match[1];
+                playHLS(m3u8);
+            } catch(e) {
+                console.warn('Proxy failed, trying iframe fallback:', e);
+                document.getElementById('tv-status').textContent = 'Cargando alternativo...';
+                document.getElementById('tv-fallback').classList.remove('hidden');
+                useFallbackIframe();
+            }
+        }
+
+        function playHLS(m3u8url) {
+            const video = document.getElementById('tv-video');
+            if(hlsPlayer) { hlsPlayer.destroy(); hlsPlayer = null; }
+
+            if(Hls.isSupported()) {
+                hlsPlayer = new Hls({ lowLatencyMode: true });
+                hlsPlayer.loadSource(m3u8url);
+                hlsPlayer.attachMedia(video);
+                hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => {
+                    document.getElementById('tv-loading').style.display = 'none';
+                    video.play().catch(()=>{});
+                });
+                hlsPlayer.on(Hls.Events.ERROR, (e, data) => {
+                    if(data.fatal) {
+                        console.warn('HLS error, fallback iframe');
+                        document.getElementById('tv-fallback').classList.remove('hidden');
+                    }
+                });
+            } else if(video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = m3u8url;
+                video.addEventListener('loadedmetadata', () => {
+                    document.getElementById('tv-loading').style.display = 'none';
+                    video.play().catch(()=>{});
+                });
+            } else {
+                useFallbackIframe();
+            }
+        }
+
+        function useFallbackIframe() {
+            if(!currentTVChannel) return;
+            document.getElementById('tv-loading').style.display = 'none';
+            const video = document.getElementById('tv-video');
+            video.style.display = 'none';
+            // Create iframe overlay
+            const existing = document.getElementById('tv-iframe-fallback');
+            if(existing) existing.remove();
+            const iframe = document.createElement('iframe');
+            iframe.id = 'tv-iframe-fallback';
+            iframe.src = `https://latamvidz1.com/canal.php?stream=${currentTVChannel.stream}`;
+            iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;';
+            iframe.allowFullscreen = true;
+            iframe.allow = 'autoplay; fullscreen';
+            document.getElementById('tv-video-container').appendChild(iframe);
+        }
+
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                if(document.querySelector(`script[src="${src}"]`)) return resolve();
+                const s = document.createElement('script');
+                s.src = src; s.onload = resolve; s.onerror = reject;
+                document.head.appendChild(s);
+            });
         }
 
         function closeTV() {
-            document.getElementById('tv-video-container').innerHTML = '';
+            const video = document.getElementById('tv-video');
+            video.pause(); video.src = ''; video.style.display = '';
+            const fi = document.getElementById('tv-iframe-fallback');
+            if(fi) fi.remove();
+            if(hlsPlayer) { hlsPlayer.destroy(); hlsPlayer = null; }
             document.getElementById('tv-player-view').classList.add('hidden');
             document.getElementById('tv-view').classList.remove('hidden');
             document.getElementById('main-header').classList.remove('hidden');
@@ -519,25 +609,35 @@
     </div>
 
     <!-- TV PLAYER VIEW -->
-    <div id="tv-player-view" class="hidden" style="display:flex;flex-direction:column;height:100vh;height:100dvh;position:fixed;inset:0;background:var(--bg);z-index:1000;">
-        <div style="padding:12px 15px;background:black;display:flex;align-items:center;gap:15px;">
-            <button onclick="closeTV()" style="background:none;border:none;color:white;font-size:1.5rem;cursor:pointer;padding:5px;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    <div id="tv-player-view" class="hidden" style="display:flex;flex-direction:column;height:100vh;height:100dvh;position:fixed;inset:0;background:#000;z-index:1000;">
+        <div style="padding:12px 15px;background:rgba(0,0,0,0.85);display:flex;align-items:center;gap:15px;position:absolute;top:0;left:0;right:0;z-index:10;">
+            <button onclick="closeTV()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:50%;width:38px;height:38px;color:white;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                ←
             </button>
             <div style="flex:1;min-width:0;">
-                <div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">TV en Vivo</div>
-                <div style="font-size:1rem;font-weight:600;" id="tv-ch-name">Canal</div>
+                <div style="font-size:0.65rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;">TV en Vivo</div>
+                <div style="font-size:1rem;font-weight:600;color:white;" id="tv-ch-name">Canal</div>
             </div>
             <span class="live-badge"><span class="live-dot"></span>LIVE</span>
         </div>
         
-        <div id="tv-video-container" style="flex:1;background:#000;position:relative;">
-            <!-- iframe injected here -->
+        <!-- Video container fills full screen -->
+        <div id="tv-video-container" style="position:absolute;inset:0;background:#000;">
+            <video id="tv-video" style="width:100%;height:100%;object-fit:contain;" controls playsinline></video>
+            <div id="tv-loading" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;gap:16px;">
+                <div style="font-size:3rem;animation:spin 1s linear infinite;">⟳</div>
+                <div id="tv-status" style="font-size:0.9rem;color:rgba(255,255,255,0.6);">Conectando al canal...</div>
+                <div id="tv-fallback" class="hidden" style="margin-top:10px;text-align:center;">
+                    <p style="font-size:0.8rem;color:rgba(255,255,255,0.4);margin-bottom:10px;">Reproductor alternativo</p>
+                    <button onclick="useFallbackIframe()" style="background:var(--accent);border:none;color:white;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:0.85rem;font-weight:600;">Abrir reproductor alternativo</button>
+                </div>
+            </div>
         </div>
         
-        <div style="background:var(--surface);padding:12px 16px;border-top:1px solid var(--border);">
-            <div style="font-size:0.68rem;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Cambiar canal</div>
-            <div id="tv-ch-list" style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;"></div>
+        <!-- Bottom channel switcher -->
+        <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.9));padding:20px 16px 14px;">
+            <div style="font-size:0.65rem;color:rgba(255,255,255,0.4);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Canales</div>
+            <div id="tv-ch-list" style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;"></div>
         </div>
     </div>
 
