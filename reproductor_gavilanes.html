@@ -107,12 +107,52 @@
             .details-header { flex-wrap: nowrap; }
             .series-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
         }
+
+        /* ═══ LIVE TV ═══ */
+        .live-badge { display:inline-flex; align-items:center; gap:5px; background:#e50914;
+            color:#fff; font-size:0.6rem; font-weight:800; letter-spacing:0.12em;
+            padding:3px 8px; border-radius:4px; text-transform:uppercase; flex-shrink:0; }
+        .live-dot { width:6px; height:6px; border-radius:50%; background:#fff;
+            animation:livepulse 1.2s ease-in-out infinite; flex-shrink:0; }
+        @keyframes livepulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(.6)} }
+        
+        .tv-cats { display:flex; gap:8px; margin-bottom:20px; overflow-x:auto; scrollbar-width:none; padding-bottom:4px; }
+        .tv-cats::-webkit-scrollbar { display:none; }
+        .tv-cat-btn { padding:6px 16px; border-radius:20px; background:var(--surface2); border:1px solid var(--border);
+            color:var(--muted); font-size:0.8rem; font-weight:500; cursor:pointer; white-space:nowrap;
+            transition:all 0.2s; }
+        .tv-cat-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700; }
+        
+        .channels-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:14px; }
+        .channel-card { background:var(--surface2); border-radius:12px; border:1px solid var(--border);
+            padding:20px 15px; text-align:center; cursor:pointer;
+            transition:all 0.25s; position:relative; overflow:hidden; }
+        .channel-card::before { content:''; position:absolute; inset:0; opacity:0;
+            background:linear-gradient(135deg, rgba(229,9,20,0.15), transparent);
+            transition:opacity 0.25s; }
+        .channel-card:hover { transform:translateY(-5px); border-color:rgba(229,9,20,0.4);
+            box-shadow:0 12px 30px rgba(0,0,0,0.4); }
+        .channel-card:hover::before { opacity:1; }
+        .ch-emoji { font-size:2.8rem; margin-bottom:12px; display:block; }
+        .ch-name { font-size:0.88rem; font-weight:600; margin-bottom:6px; }
+        .ch-cat { font-size:0.68rem; color:var(--muted); }
+        .ch-live { position:absolute; top:10px; right:10px; }
+        
+        @media(max-width:840px){
+            .channels-grid { grid-template-columns:repeat(auto-fill, minmax(130px,1fr)); gap:10px; }
+            .ch-emoji { font-size:2.2rem; }
+        }
+
     </style>
 </head>
 <body>
 
     <header id="main-header">
         <div class="logo" onclick="showCatalog()">MIS NOVELAS</div>
+        <button onclick="showTV()" id="nav-tv" style="background:rgba(229,9,20,0.12);border:1px solid rgba(229,9,20,0.3);color:#fff;border-radius:8px;padding:7px 14px;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:0.03em;display:flex;align-items:center;gap:6px;" onmouseover="this.style.background='rgba(229,9,20,0.25)'" onmouseout="this.style.background='rgba(229,9,20,0.12)'">
+            <span style="width:7px;height:7px;border-radius:50%;background:#e50914;display:inline-block;animation:livepulse 1.2s ease-in-out infinite;box-shadow:0 0 8px #e50914;"></span>
+            TV EN VIVO
+        </button>
         <div class="header-pill"><span class="dot" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--success); margin-right:5px; box-shadow:0 0 8px var(--success);"></span> ONLINE</div>
     </header>
 
@@ -382,7 +422,124 @@
             renderEpisodes(); // Refresh list to show watched status
         }
 
+
+        // ═══════════════════════════════
+        // TV EN VIVO
+        // ═══════════════════════════════
+        const CHANNELS = [{"id": "tudn", "name": "TUDN", "emoji": "🏆", "cat": "Fútbol", "stream": "tudn_usa", "color": "#0b4ea2"}, {"id": "espnp", "name": "ESPN Premium", "emoji": "🎽", "cat": "Deportes", "stream": "espnpremium", "color": "#cc0000"}, {"id": "espn1", "name": "ESPN", "emoji": "⚡", "cat": "Deportes", "stream": "espn", "color": "#cc0000"}, {"id": "foxsp", "name": "Fox Sports", "emoji": "🦊", "cat": "Deportes", "stream": "foxsports", "color": "#0099d6"}, {"id": "tyc", "name": "TyC Sports", "emoji": "🇦🇷", "cat": "Fútbol", "stream": "tycsports", "color": "#e30613"}, {"id": "tnt", "name": "TNT Sports", "emoji": "💣", "cat": "Deportes", "stream": "tntsports", "color": "#0f3460"}, {"id": "dsports", "name": "DirecTV Sports", "emoji": "📡", "cat": "Deportes", "stream": "dsports", "color": "#00a2e8"}, {"id": "winplus", "name": "Win Sports+", "emoji": "🏅", "cat": "Fútbol", "stream": "winplus", "color": "#e4002b"}];
+        let currentCat = 'all';
+
+        function showTV() {
+            document.getElementById('catalog-view').classList.add('hidden');
+            document.getElementById('details-view').classList.add('hidden');
+            document.getElementById('player-view').classList.add('hidden');
+            document.getElementById('tv-view').classList.remove('hidden');
+            document.getElementById('tv-player-view').classList.add('hidden');
+            document.getElementById('main-header').classList.remove('hidden');
+            renderTVCats();
+            renderChannels();
+            window.scrollTo(0,0);
+        }
+
+        function renderTVCats() {
+            const cats = ['all', ...new Set(CHANNELS.map(c=>c.cat))];
+            const labels = {'all':'Todos'};
+            const el = document.getElementById('tv-cats');
+            el.innerHTML = cats.map(c =>
+                `<button class="tv-cat-btn ${c===currentCat?'active':''}" onclick="filterCat('${c}')">${labels[c]||c}</button>`
+            ).join('');
+        }
+
+        function filterCat(cat) {
+            currentCat = cat;
+            renderTVCats();
+            renderChannels();
+        }
+
+        function renderChannels() {
+            const filtered = currentCat==='all' ? CHANNELS : CHANNELS.filter(c=>c.cat===currentCat);
+            document.getElementById('channels-grid').innerHTML = filtered.map(ch => `
+                <div class="channel-card" onclick="openChannel('${ch.id}')">
+                    <span class="ch-live"><span class="live-badge"><span class="live-dot"></span>EN VIVO</span></span>
+                    <span class="ch-emoji">${ch.emoji}</span>
+                    <div class="ch-name">${ch.name}</div>
+                    <div class="ch-cat">${ch.cat}</div>
+                </div>
+            `).join('');
+        }
+
+        function openChannel(chId) {
+            const ch = CHANNELS.find(c=>c.id===chId);
+            if(!ch) return;
+            document.getElementById('tv-view').classList.add('hidden');
+            document.getElementById('tv-player-view').classList.remove('hidden');
+            document.getElementById('main-header').classList.add('hidden');
+            document.getElementById('tv-ch-name').textContent = ch.emoji + ' ' + ch.name;
+            
+            // Load iframe
+            const url = `https://latamvidz1.com/canal.php?stream=${ch.stream}`;
+            document.getElementById('tv-video-container').innerHTML = `<iframe src="${url}" style="width:100%;height:100%;border:none;" frameborder="0" allowfullscreen="true" allow="autoplay; fullscreen"></iframe>`;
+            
+            // Render quick channel switcher
+            document.getElementById('tv-ch-list').innerHTML = CHANNELS.map(c =>
+                `<button onclick="openChannel('${c.id}')" style="padding:7px 14px;border-radius:20px;background:${c.id===chId?'var(--accent)':'rgba(255,255,255,0.05)'};border:1px solid ${c.id===chId?'var(--accent)':'var(--border)'};color:white;font-size:0.78rem;font-weight:${c.id===chId?'700':'400'};cursor:pointer;white-space:nowrap;transition:all 0.2s;flex-shrink:0;">${c.emoji} ${c.name}</button>`
+            ).join('');
+            
+            window.scrollTo(0,0);
+        }
+
+        function closeTV() {
+            document.getElementById('tv-video-container').innerHTML = '';
+            document.getElementById('tv-player-view').classList.add('hidden');
+            document.getElementById('tv-view').classList.remove('hidden');
+            document.getElementById('main-header').classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+
         window.onload = init;
     </script>
+
+    <!-- TV EN VIVO VIEW -->
+    <div id="tv-view" class="view hidden" style="padding:20px;max-width:1200px;margin:0 auto;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+            <div>
+                <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:10px;">
+                    📡 TV en Vivo
+                    <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+                </h2>
+                <p style="font-size:0.82rem;color:var(--muted);">Canales deportivos en vivo</p>
+            </div>
+            <button onclick="showCatalog()" style="background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:7px 14px;font-size:0.8rem;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--muted)'">
+                ← Mis Novelas
+            </button>
+        </div>
+        
+        <div class="tv-cats" id="tv-cats"></div>
+        <div class="channels-grid" id="channels-grid"></div>
+    </div>
+
+    <!-- TV PLAYER VIEW -->
+    <div id="tv-player-view" class="hidden" style="display:flex;flex-direction:column;height:100vh;height:100dvh;position:fixed;inset:0;background:var(--bg);z-index:1000;">
+        <div style="padding:12px 15px;background:black;display:flex;align-items:center;gap:15px;">
+            <button onclick="closeTV()" style="background:none;border:none;color:white;font-size:1.5rem;cursor:pointer;padding:5px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">TV en Vivo</div>
+                <div style="font-size:1rem;font-weight:600;" id="tv-ch-name">Canal</div>
+            </div>
+            <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+        </div>
+        
+        <div id="tv-video-container" style="flex:1;background:#000;position:relative;">
+            <!-- iframe injected here -->
+        </div>
+        
+        <div style="background:var(--surface);padding:12px 16px;border-top:1px solid var(--border);">
+            <div style="font-size:0.68rem;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Cambiar canal</div>
+            <div id="tv-ch-list" style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;"></div>
+        </div>
+    </div>
+
 </body>
 </html>
