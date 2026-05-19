@@ -1126,16 +1126,19 @@
                 if (d) d.classList.toggle('active', t === saved);
             });
         }
-        // Close drawer on swipe right
-        (function() {
-            let startX = 0;
-            document.getElementById('side-drawer').addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
-            document.getElementById('side-drawer').addEventListener('touchend', e => {
-                if (e.changedTouches[0].clientX - startX > 60) closeDrawer();
-            }, { passive: true });
-        })();
-
-        window.onload = init;
+        window.onload = function() {
+            // Init the app
+            init();
+            // Close drawer on swipe right (DOM exists now)
+            const drawer = document.getElementById('side-drawer');
+            if (drawer) {
+                let startX = 0;
+                drawer.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+                drawer.addEventListener('touchend', e => {
+                    if (e.changedTouches[0].clientX - startX > 60) closeDrawer();
+                }, { passive: true });
+            }
+        };
     </script>
 
     <!-- TV EN VIVO VIEW -->
