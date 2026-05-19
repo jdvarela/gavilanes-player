@@ -472,7 +472,9 @@
         // HLS.js loaded dynamically
         let hlsPlayer = null;
         let currentTVChannel = null;
-        const PROXY = 'https://corsproxy.io/?';
+        // TV API: try Flask proxy first (when served from server), then CORS proxy fallback
+        const FLASK_API = window.location.protocol !== 'file:' ? '/api/tv?channel=' : null;
+        const CORS_PROXY = 'https://corsproxy.io/?';
 
         async function openChannel(chId) {
             const ch = CHANNELS.find(c=>c.id===chId);
@@ -505,14 +507,30 @@
             const canalUrl = `https://latamvidz1.com/canal.php?stream=${ch.stream}`;
             try {
                 document.getElementById('tv-status').textContent = 'Obteniendo stream...';
-                const resp = await fetch(PROXY + encodeURIComponent(canalUrl), { signal: AbortSignal.timeout(10000) });
-                const html = await resp.text();
-                const match = html.match(/var playbackURL\s*=\s*"([^"]+)"/);
-                if (!match) throw new Error('No m3u8 found');
-                const m3u8 = match[1];
-                playHLS(m3u8);
+                let m3u8 = null;
+
+                if (FLASK_API) {
+                    // Use our Flask proxy (server has same IP as browser)
+                    const r = await fetch(FLASK_API + ch.stream, { signal: AbortSignal.timeout(10000) });
+                    const data = await r.json();
+                    if (data.m3u8) m3u8 = data.m3u8;
+                }
+
+                if (!m3u8) {
+                    // Fallback: CORS proxy
+                    const r2 = await fetch(CORS_PROXY + encodeURIComponent(canalUrl), { signal: AbortSignal.timeout(12000) });
+                    const pageHtml = await r2.text();
+                    const match = pageHtml.match(/var playbackURL\s*=\s*"([^"]+)"/);
+                    if (match) m3u8 = match[1];
+                }
+
+                if (m3u8) {
+                    playHLS(m3u8);
+                } else {
+                    throw new Error('No stream URL found');
+                }
             } catch(e) {
-                console.warn('Proxy failed, trying iframe fallback:', e);
+                console.warn('All proxies failed, iframe fallback:', e);
                 document.getElementById('tv-status').textContent = 'Cargando alternativo...';
                 document.getElementById('tv-fallback').classList.remove('hidden');
                 useFallbackIframe();

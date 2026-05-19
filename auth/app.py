@@ -12,8 +12,10 @@ Variables de entorno (configurar en EasyPanel):
 """
 
 import os
+import re
 import secrets
 import datetime
+import urllib.request
 from pathlib import Path
 
 import bcrypt
@@ -425,13 +427,49 @@ def static_files(filename):
     return send_from_directory(STATIC_DIR, filename)
 
 
+# ─────────────────────────────────────────
+# TV EN VIVO — proxy para extraer stream m3u8
+# ─────────────────────────────────────────
+
+@app.route("/api/tv")
+def tv_stream():
+    """Proxy que obtiene la URL m3u8 de latamvidz1.com para el canal solicitado."""
+    channel = request.args.get("channel", "").strip()
+    if not channel or not re.match(r'^[a-zA-Z0-9_]+$', channel):
+        from flask import jsonify
+        return jsonify({"error": "canal inválido"}), 400
+
+    canal_url = f"https://latamvidz1.com/canal.php?stream={channel}"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Referer": "https://futbol-libre.su/",
+        "Accept-Language": "es-ES,es;q=0.9",
+    }
+    try:
+        req = urllib.request.Request(canal_url, headers=headers)
+        with urllib.request.urlopen(req, timeout=10) as r:
+            html = r.read().decode("utf-8", errors="replace")
+        match = re.search(r'var playbackURL\s*=\s*"([^"]+)"', html)
+        if not match:
+            from flask import jsonify
+            return jsonify({"error": "stream no encontrado"}), 404
+        from flask import jsonify
+        resp = jsonify({"m3u8": match.group(1)})
+        resp.headers["Access-Control-Allow-Origin"] = "*"
+        return resp
+    except Exception as e:
+        from flask import jsonify
+        return jsonify({"error": str(e)}), 502
+
+
 # Seguridad: headers en todas las respuestas
 @app.after_request
 def set_security_headers(response):
     response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["X-Frame-Options"]        = "DENY"
+    response.headers["X-Frame-Options"]        = "SAMEORIGIN"
     response.headers["X-XSS-Protection"]       = "1; mode=block"
     response.headers["Referrer-Policy"]        = "strict-origin-when-cross-origin"
+    response.headers["Access-Control-Allow-Origin"] = "*"
     return response
 
 
